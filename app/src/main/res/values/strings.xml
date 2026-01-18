@@ -1,0 +1,66 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="header_title">LABADA</string>
+    <string name="header_subtitle">Schedule your laundry pickup and delivery</string>
+    <string name="book_appointment">Book an Appointment</string>
+    <string name="select_service">Select Service</string>
+    
+    <string name="service_wash_fold"><b>Wash &amp; Fold</b>\nProfessional wash and fold service.\n₱25</string>
+    <string name="service_dry_cleaning"><b>Dry Cleaning</b>\nExpert dry cleaning for delicate items.\n₱45</string>
+    <string name="service_ironing"><b>Ironing</b>\nCrisp ironing service\n₱20</string>
+    <string name="service_express"><b>Express</b>\nSame-day service available.\n₱60</string>
+
+    <string name="select_machine">Select Machine</string>
+    <string name="machine_1">Machine #1</string>
+    <string name="machine_2">Machine #2</string>
+    <string name="machine_3">Machine #3</string>
+    <string name="machine_4">Machine #4</string>
+    <string name="machine_5">Machine #5</string>
+    <string name="machine_6">Machine #6</string>
+    <string name="date_time">Date &amp; Time</string>
+    <string name="select_time">Select Time Slot</string>
+    <string name="time_9am">09:00 AM</string>
+    <string name="time_11am">11:00 AM</string>
+    <string name="time_1pm">01:00 PM</string>
+    <string name="time_3pm">03:00 PM</string>
+    <string name="time_5pm">05:00 PM</string>
+    <string name="time_7pm">07:00 PM</string>
+    <string name="delivery_method">Delivery Method</string>
+    <string name="method_cod">COD</string>
+    <string name="method_pickup">Pickup</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="payment_cash">Cash</string>
+    <string name="payment_ewallet">E-Wallet</string>
+    <string name="btn_book_appointment">Book Appointment</string>
+
+    <!-- Login & Sign Up Strings -->
+    <string name="title_login">Welcome Back</string>
+    <string name="subtitle_login">Login to your account</string>
+    <string name="label_email">Email Address</string>
+    <string name="label_password">Password</string>
+    <string name="btn_login">Login</string>
+    <string name="text_no_account">Don\'t have an account? Sign Up</string>
+    
+    <string name="title_signup">Create Account</string>
+    <string name="subtitle_signup">Create an account to make your clothes fresh</string>
+    <string name="label_first_name">First Name</string>
+    <string name="label_middle_name">Middle Name (Optional)</string>
+    <string name="label_last_name">Last Name</string>
+    <string name="label_birthday">Birthday (DD/MM/YYYY)</string>
+    <string name="label_phone">Phone Number</string>
+    <string name="label_confirm_password">Confirm Password</string>
+    <string name="label_address">Address</string>
+    <string name="btn_signup">Sign Up</string>
+    <string name="text_have_account">Already have an account? Login</string>
+
+    <!-- Appointments Strings -->
+    <string name="title_appointments">Your Appointments</string>
+    <string name="subtitle_appointments">Manage your scheduled laundry services</string>
+    <string name="status_pending">Status: Pending</string>
+    <string name="status_confirmed">Status: Confirmed</string>
+    <string name="status_completed">Status: Completed</string>
+    <string name="no_appointments">You have no appointments scheduled.</string>
+    <string name="label_service">Service:</string>
+    <string name="label_date">Date:</string>
+    <string name="label_machine">Machine:</string>
+</resources>
