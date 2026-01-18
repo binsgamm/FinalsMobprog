@@ -26,8 +26,8 @@
     <string name="time_5pm">05:00 PM</string>
     <string name="time_7pm">07:00 PM</string>
     <string name="delivery_method">Delivery Method</string>
-    <string name="method_cod">COD</string>
-    <string name="method_pickup">Pickup</string>
+    <string name="method_cod">Drop Off</string>
+    <string name="method_pickup">Pick up</string>
     <string name="payment_method">Payment Method</string>
     <string name="payment_cash">Cash</string>
     <string name="payment_ewallet">E-Wallet</string>
