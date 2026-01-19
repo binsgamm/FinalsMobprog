@@ -1,6 +1,10 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
+    kotlin("plugin.serialization") version "2.3.0"
 }
 
 android {
@@ -32,8 +36,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
+    }
+    buildFeatures {
+        viewBinding = true
     }
 }
 
@@ -46,4 +55,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.3.0"))
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+
+    implementation("io.ktor:ktor-client-android:3.3.3")
+    implementation("io.github.jan-tennert.supabase:auth-kt")
+    implementation("io.github.jan-tennert.supabase:realtime-kt")
 }
