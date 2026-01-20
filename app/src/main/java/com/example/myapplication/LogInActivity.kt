@@ -3,73 +3,236 @@ package com.example.myapplication
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import android.util.TypedValue
-import android.view.View
-import android.widget.TextView
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textview.MaterialTextView
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.user.UserSession
+import io.github.jan.supabase.createSupabaseClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LogInActivity : AppCompatActivity() {
 
+    private lateinit var etEmail: TextInputEditText
+    private lateinit var etPassword: TextInputEditText
+    private lateinit var btnLogin: MaterialButton
+    private lateinit var tvSignUp: MaterialTextView
     private var isNavigating = false
-    private lateinit var tvSignUp: TextView // Declare the variable
+
+    // Supabase client - same as in SignUpActivity
+    private val supabaseClient: SupabaseClient by lazy {
+        createSupabaseClient(
+            supabaseUrl = "https://mxxyzcoevcsniinvleos.supabase.co",
+            supabaseKey = "sb_publishable_pdEutnY70rVI_FVG6Casaw_03co6UQR"
+        ) {
+            install(io.github.jan.supabase.postgrest.Postgrest)
+            install(io.github.jan.supabase.auth.Auth)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Initialize the TextView
-        tvSignUp = findViewById(R.id.tvSignUp)
+        initializeViews()
+        setupClickListeners()
+        setTextColors()
 
-        // Make the "Sign Up" text clickable
+        // Check if user is already logged in
+        checkExistingSession()
+    }
+
+    private fun initializeViews() {
+        etEmail = findViewById(R.id.etEmail)
+        etPassword = findViewById(R.id.etPassword)
+        btnLogin = findViewById(R.id.btnLogin)
+        tvSignUp = findViewById(R.id.tvSignUp)
+    }
+
+    private fun setupClickListeners() {
+        btnLogin.setOnClickListener {
+            hideKeyboard()
+            if (validateInputs()) {
+                performLogin()
+            }
+        }
+
         tvSignUp.setOnClickListener {
             navigateToSignUp()
         }
-
-        // Ensure text colors are visible
-        setTextColors()
     }
 
-    private fun setTextColors() {
-        // Get email and password fields
-        val etEmail = findViewById<TextInputEditText>(R.id.etEmail)
-        val etPassword = findViewById<TextInputEditText>(R.id.etPassword)
+    private fun validateInputs(): Boolean {
+        val email = etEmail.text.toString().trim().lowercase()
+        val password = etPassword.text.toString()
 
-        // Set text colors to black for visibility
-        val textColor = ContextCompat.getColor(this, android.R.color.black)
+        var isValid = true
 
-        etEmail?.setTextColor(textColor)
-        etEmail?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+        // Clear previous errors
+        etEmail.error = null
+        etPassword.error = null
 
-        etPassword?.setTextColor(textColor)
-        etPassword?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+        // Email validation
+        if (email.isEmpty()) {
+            etEmail.error = "Email is required"
+            isValid = false
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            etEmail.error = "Please enter a valid email"
+            isValid = false
+        }
+
+        // Password validation
+        if (password.isEmpty()) {
+            etPassword.error = "Password is required"
+            isValid = false
+        } else if (password.length < 8) {
+            etPassword.error = "Password must be at least 8 characters"
+            isValid = false
+        }
+
+        return isValid
+    }
+
+    private fun performLogin() {
+        showLoading(true)
+
+        val email = etEmail.text.toString().trim().lowercase()
+        val password = etPassword.text.toString()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                Log.d("LogInActivity", "Attempting login for: $email")
+
+                // CORRECTED: Sign in with Supabase Auth
+                val session = supabaseClient.auth.signInWith(
+                    io.github.jan.supabase.auth.providers.builtin.Email
+                ) {
+                    this.email = email
+                    this.password = password
+                }
+
+                // Get current user
+                val currentUser = supabaseClient.auth.currentUserOrNull()
+
+                Log.d("LogInActivity", "Login successful. User ID: ${currentUser?.id}")
+
+                withContext(Dispatchers.Main) {
+                    showLoading(false)
+                    Toast.makeText(
+                        this@LogInActivity,
+                        "Login successful!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    // Navigate to MainActivity
+                    navigateToMain()
+                }
+
+            } catch (e: Exception) {
+                Log.e("LogInActivity", "Login error: ${e.message}", e)
+
+                withContext(Dispatchers.Main) {
+                    showLoading(false)
+
+                    val errorMessage = when {
+                        e.message?.contains("Invalid login credentials") == true ->
+                            "Invalid email or password"
+                        e.message?.contains("Email not confirmed") == true ->
+                            "Please verify your email first"
+                        e.message?.contains("rate limit") == true ->
+                            "Too many attempts. Please try again later"
+                        else -> "Login failed: ${e.message ?: "Unknown error"}"
+                    }
+
+                    Toast.makeText(
+                        this@LogInActivity,
+                        errorMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun checkExistingSession() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Get current session
+                val currentSession = supabaseClient.auth.currentSessionOrNull()
+                val currentUser = supabaseClient.auth.currentUserOrNull()
+
+                if (currentSession != null && currentUser != null) {
+                    Log.d("LogInActivity", "User already logged in: ${currentUser.email}")
+
+                    withContext(Dispatchers.Main) {
+                        // Navigate directly to MainActivity
+                        navigateToMain()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("LogInActivity", "Session check error: ${e.message}")
+            }
+        }
+    }
+
+    private fun navigateToMain() {
+        if (isNavigating) return
+
+        isNavigating = true
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     private fun navigateToSignUp() {
-        // Prevent multiple clicks
-        if (isNavigating) {
-            Log.d("NAVIGATION", "Already navigating, skipping")
-            return
-        }
+        if (isNavigating) return
 
         isNavigating = true
-        Log.d("NAVIGATION", "Navigating to SignUpActivity")
-
         val intent = Intent(this, SignUpActivity::class.java)
         startActivity(intent)
 
-        // Reset navigation flag after delay
-        tvSignUp.postDelayed({
-            isNavigating = false
-            Log.d("NAVIGATION", "Navigation flag reset")
-        }, 1000)
+        // Reset flag after delay
+        tvSignUp.postDelayed({ isNavigating = false }, 1000)
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        btnLogin.isEnabled = !isLoading
+        btnLogin.text = if (isLoading) "Logging in..." else "Login"
+    }
+
+    private fun hideKeyboard() {
+        val view = currentFocus
+        view?.let {
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+    }
+
+    private fun setTextColors() {
+        // Set text colors for better visibility
+        val textColor = ContextCompat.getColor(this, android.R.color.black)
+
+        etEmail.setTextColor(textColor)
+        etEmail.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+
+        etPassword.setTextColor(textColor)
+        etPassword.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
     }
 
     override fun onResume() {
         super.onResume()
-        // Reset navigation flag when returning to this activity
+        // Reset navigation flag
         isNavigating = false
-        Log.d("NAVIGATION", "LoginActivity resumed, navigation reset")
     }
 }
