@@ -1,24 +1,22 @@
 package com.example.myapplication
-import io.github.jan.supabase.auth.providers.builtin.Email
+
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.util.Patterns
-import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import com.example.myapplication.databinding.ActivitySignupBinding
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,17 +36,7 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
     private lateinit var etConfirmPassword: TextInputEditText
-
-    private lateinit var tilFirstName: TextInputLayout
-    private lateinit var tilMiddleName: TextInputLayout
-    private lateinit var tilLastName: TextInputLayout
-    private lateinit var tilAddress: TextInputLayout
-    private lateinit var tilPhone: TextInputLayout
-    private lateinit var tilEmail: TextInputLayout
-    private lateinit var tilPassword: TextInputLayout
-    private lateinit var tilConfirmPassword: TextInputLayout
-
-    private lateinit var btnSignUp: MaterialButton
+    private lateinit var btnSignUp: AppCompatButton
 
     // Supabase client
     private val supabaseClient: SupabaseClient by lazy {
@@ -56,8 +44,8 @@ class SignUpActivity : AppCompatActivity() {
             supabaseUrl = "https://mxxyzcoevcsniinvleos.supabase.co",
             supabaseKey = "sb_publishable_pdEutnY70rVI_FVG6Casaw_03co6UQR"
         ) {
-            install(Auth)
-            install(Postgrest)
+            install(io.github.jan.supabase.postgrest.Postgrest)
+            install(io.github.jan.supabase.auth.Auth)
         }
     }
 
@@ -79,6 +67,20 @@ class SignUpActivity : AppCompatActivity() {
         initializeViews()
         setupClickListeners()
         setupTextWatchers()
+
+        // Set up modern back button handling
+        setupBackPressedHandler()
+    }
+
+    private fun setupBackPressedHandler() {
+        // Modern way to handle back button with OnBackPressedDispatcher
+        val onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navigateToLogin()
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     private fun initializeViews() {
@@ -90,16 +92,6 @@ class SignUpActivity : AppCompatActivity() {
         etEmail = binding.etEmail
         etPassword = binding.etPassword
         etConfirmPassword = binding.etConfirmPassword
-
-        tilFirstName = etFirstName.parent.parent as TextInputLayout
-        tilMiddleName = etMiddleName.parent.parent as TextInputLayout
-        tilLastName = etLastName.parent.parent as TextInputLayout
-        tilAddress = etAddress.parent.parent as TextInputLayout
-        tilPhone = etPhone.parent.parent as TextInputLayout
-        tilEmail = etEmail.parent.parent as TextInputLayout
-        tilPassword = etPassword.parent.parent as TextInputLayout
-        tilConfirmPassword = etConfirmPassword.parent.parent as TextInputLayout
-
         btnSignUp = binding.btnSignUp
     }
 
@@ -140,7 +132,6 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun validateAllFields(): Boolean {
         var isValid = true
-        clearAllErrors()
 
         val firstName = etFirstName.text.toString().trim()
         val middleName = etMiddleName.text.toString().trim()
@@ -151,61 +142,67 @@ class SignUpActivity : AppCompatActivity() {
         val password = etPassword.text.toString()
         val confirmPassword = etConfirmPassword.text.toString()
 
-        // First Name
+        clearAllErrors()
+
         if (!validateName(firstName)) {
-            tilFirstName.error = "First name must be 2-50 letters"
+            showError(etFirstName, "First name must be 2-50 letters")
             isValid = false
         }
 
-        // Last Name
         if (!validateName(lastName)) {
-            tilLastName.error = "Last name must be 2-50 letters"
+            showError(etLastName, "Last name must be 2-50 letters")
             isValid = false
         }
 
-        // Middle Name
         if (middleName.isNotEmpty() && !validateOptionalName(middleName)) {
-            tilMiddleName.error = "Only letters, spaces, dots, apostrophes and hyphens allowed"
+            showError(etMiddleName, "Only letters, spaces, dots, apostrophes and hyphens allowed")
             isValid = false
         }
 
-        // Address
         if (address.isEmpty()) {
-            tilAddress.error = "Address is required"
+            showError(etAddress, "Address is required")
             isValid = false
         } else if (address.length < 10) {
-            tilAddress.error = "Please enter a complete address"
+            showError(etAddress, "Please enter a complete address")
             isValid = false
         }
 
-        // Phone
         if (!validatePhone(phone)) {
-            tilPhone.error = "Enter a valid Philippine mobile number (10 digits, starts with 9)"
+            showError(etPhone, "Enter a valid Philippine mobile number (10 digits, starts with 9)")
             isValid = false
         }
 
-        // Email
         if (!validateEmail(email)) {
-            tilEmail.error = "Enter a valid email address"
+            showError(etEmail, "Enter a valid email address")
             isValid = false
         }
 
-        // Password
         if (!validatePassword(password)) {
-            tilPassword.error = getPasswordError(password)
+            showError(etPassword, getPasswordError(password))
             isValid = false
         }
 
-        // Confirm Password
         if (!validateConfirmPassword(password, confirmPassword)) {
-            tilConfirmPassword.error = if (confirmPassword.isEmpty())
-                "Please confirm your password"
-            else
-                "Passwords do not match"
+            showError(etConfirmPassword,
+                if (confirmPassword.isEmpty()) "Please confirm your password"
+                else "Passwords do not match"
+            )
             isValid = false
         }
 
         return isValid
+    }
+
+    private fun showError(editText: TextInputEditText, message: String) {
+        editText.error = message
+    }
+
+    private fun clearAllErrors() {
+        listOf(
+            etFirstName, etMiddleName, etLastName,
+            etAddress, etPhone, etEmail,
+            etPassword, etConfirmPassword
+        ).forEach { it.error = null }
     }
 
     private fun validateName(name: String): Boolean {
@@ -238,26 +235,26 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun validatePasswordInRealTime(password: String) {
         if (password.isEmpty()) {
-            tilPassword.error = null
+            etPassword.error = null
             return
         }
 
         when {
             password.length < MIN_PASSWORD_LENGTH ->
-                tilPassword.error = "At least $MIN_PASSWORD_LENGTH characters"
+                etPassword.error = "At least $MIN_PASSWORD_LENGTH characters"
             password.length > MAX_PASSWORD_LENGTH ->
-                tilPassword.error = "Maximum $MAX_PASSWORD_LENGTH characters"
+                etPassword.error = "Maximum $MAX_PASSWORD_LENGTH characters"
             !PASSWORD_REGEX.matches(password) ->
-                tilPassword.error = "Include uppercase, lowercase, number & special char"
-            else -> tilPassword.error = null
+                etPassword.error = "Include uppercase, lowercase, number & special char"
+            else -> etPassword.error = null
         }
     }
 
     private fun validateEmailInRealTime(email: String) {
         if (email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.error = "Invalid email format"
+            etEmail.error = "Invalid email format"
         } else {
-            tilEmail.error = null
+            etEmail.error = null
         }
     }
 
@@ -269,14 +266,6 @@ class SignUpActivity : AppCompatActivity() {
             !PASSWORD_REGEX.matches(password) -> "Must include uppercase, lowercase, number & special character (@$!%*?&)"
             else -> ""
         }
-    }
-
-    private fun clearAllErrors() {
-        listOf(
-            tilFirstName, tilMiddleName, tilLastName,
-            tilAddress, tilPhone, tilEmail,
-            tilPassword, tilConfirmPassword
-        ).forEach { it.error = null }
     }
 
     private fun hideKeyboard() {
@@ -308,124 +297,63 @@ class SignUpActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // 1. Sign up with Supabase Auth
+                Log.d("SignUpActivity", "Starting signup for: ${userData.email}")
+
+                // Proper null safety
                 val authResult = supabaseClient.auth.signUpWith(Email) {
-                    email = userData.email
-                    password = userData.password
+                    this.email = userData.email
+                    this.password = userData.password
                 }
 
-                // Get the user ID from the result
-                val userId = authResult?.id!!
+                Log.d("SignUpActivity", "Auth result received")
 
-                // 2. Create customer profile in your database
-                val customerData = buildMap<String, Any?> {
-                    put("user_id", userId)
-                    put("f_name", userData.firstName)
-                    put("l_name", userData.lastName)
-                    put("email", userData.email)
-                    put("phone_num", "+63${userData.phone}")
-                    put("address", userData.address)
+                // Fixed null safety
+                val userId = authResult?.id ?:
+                (supabaseClient.auth.currentUserOrNull()?.id ?:
+                throw Exception("Failed to get user ID"))
 
-                    // Add middle name only if it's not empty
-                    if (userData.middleName.isNotEmpty()) {
-                        put("m_name", userData.middleName)
-                    }
+                Log.d("SignUpActivity", "User ID: $userId")
+
+                // Insert into customers table
+                val customerData = mutableMapOf(
+                    "user_id" to userId,
+                    "f_name" to userData.firstName,
+                    "l_name" to userData.lastName,
+                    "email" to userData.email,
+                    "phone_num" to "+63${userData.phone}",
+                    "address" to userData.address
+                )
+
+                if (userData.middleName.isNotEmpty()) {
+                    customerData["m_name"] = userData.middleName
                 }
 
-                // 3. Insert into customers table
+                Log.d("SignUpActivity", "Inserting customer: $customerData")
                 supabaseClient.postgrest.from("customers").insert(customerData)
 
                 withContext(Dispatchers.Main) {
                     showLoading(false)
-                    showSuccessAndNavigate()
+                    Toast.makeText(
+                        this@SignUpActivity,
+                        "Account created successfully!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    navigateToLogin()
                 }
 
             } catch (e: Exception) {
-                // Log the FULL error for debugging
-                Log.e("SignUpActivity", "Sign up error:", e)
-                Log.e("SignUpActivity", "Full error message: ${e.message}")
-                Log.e("SignUpActivity", "Error cause: ${e.cause}")
-                Log.e("SignUpActivity", "Stack trace: ${e.stackTraceToString()}")
+                Log.e("SignUpActivity", "Signup error: ${e.message}", e)
 
                 withContext(Dispatchers.Main) {
                     showLoading(false)
-                    handleSignUpError(e)
+                    Toast.makeText(
+                        this@SignUpActivity,
+                        "Error: ${e.message ?: "Unknown error"}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
-    }
-
-    private fun handleSignUpError(exception: Exception) {
-        val errorMessage = exception.message ?: "Unknown error"
-        val fullError = exception.toString()
-
-        // Log to console for debugging
-        println("SIGNUP ERROR: $fullError")
-        println("ERROR MESSAGE: $errorMessage")
-
-        when {
-            errorMessage.contains("already registered", ignoreCase = true) ||
-                    errorMessage.contains("already exists", ignoreCase = true) -> {
-                tilEmail.error = "Email already exists"
-            }
-            errorMessage.contains("Invalid email", ignoreCase = true) -> {
-                tilEmail.error = "Invalid email address"
-            }
-            errorMessage.contains("Password", ignoreCase = true) &&
-                    errorMessage.contains("weak", ignoreCase = true) -> {
-                tilPassword.error = "Password is too weak"
-            }
-            errorMessage.contains("duplicate key", ignoreCase = true) -> {
-                if (errorMessage.contains("phone_num", ignoreCase = true)) {
-                    tilPhone.error = "Phone number already registered"
-                } else if (errorMessage.contains("email", ignoreCase = true)) {
-                    tilEmail.error = "Email already registered"
-                }
-            }
-            errorMessage.contains("network", ignoreCase = true) ||
-                    errorMessage.contains("connection", ignoreCase = true) ||
-                    errorMessage.contains("socket", ignoreCase = true) ||
-                    errorMessage.contains("timeout", ignoreCase = true) ||
-                    errorMessage.contains("failed to connect", ignoreCase = true) -> {
-                Toast.makeText(
-                    this,
-                    "Network error. Please check your internet connection and try again.",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-            errorMessage.contains("HTTP", ignoreCase = true) -> {
-                // Show user-friendly message for HTTP errors
-                Toast.makeText(
-                    this,
-                    "Server error. Please try again later.",
-                    Toast.LENGTH_LONG
-                ).show()
-
-                // Log the actual error for debugging
-                Log.e("SignUpActivity", "HTTP Error details: $fullError")
-            }
-            else -> {
-                // Show the actual error for debugging
-                Toast.makeText(
-                    this,
-                    "Sign up failed: ${errorMessage.take(100)}...", // Limit length
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-    }
-
-    private fun showSuccessAndNavigate() {
-        Toast.makeText(
-            this,
-            "Account created successfully! Check your email for verification.",
-            Toast.LENGTH_LONG
-        ).show()
-
-        val intent = Intent(this, LogInActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
-        finish()
     }
 
     private fun showLoading(isLoading: Boolean) {
@@ -433,10 +361,7 @@ class SignUpActivity : AppCompatActivity() {
         btnSignUp.text = if (isLoading) "Creating Account..." else "Sign Up"
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        navigateToLogin()
-    }
+
 }
 
 data class UserData(
