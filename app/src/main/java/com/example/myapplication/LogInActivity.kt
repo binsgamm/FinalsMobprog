@@ -14,10 +14,10 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.auth.user.UserSession
 import io.github.jan.supabase.createSupabaseClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -37,6 +37,12 @@ class LogInActivity : AppCompatActivity() {
         ) {
             install(io.github.jan.supabase.postgrest.Postgrest)
             install(io.github.jan.supabase.auth.Auth)
+
+            // ADD THIS for session persistence:
+            install(io.github.jan.supabase.auth.Auth) {
+                alwaysAutoRefresh = true
+                autoLoadFromStorage = true
+            }
         }
     }
 
@@ -64,6 +70,7 @@ class LogInActivity : AppCompatActivity() {
             hideKeyboard()
             if (validateInputs()) {
                 performLogin()
+
             }
         }
 
@@ -113,7 +120,7 @@ class LogInActivity : AppCompatActivity() {
             try {
                 Log.d("LogInActivity", "Attempting login for: $email")
 
-                // CORRECTED: Sign in with Supabase Auth
+                // Sign in with Supabase Auth
                 val session = supabaseClient.auth.signInWith(
                     io.github.jan.supabase.auth.providers.builtin.Email
                 ) {
@@ -121,21 +128,37 @@ class LogInActivity : AppCompatActivity() {
                     this.password = password
                 }
 
-                // Get current user
+                // Get current user IMMEDIATELY after login
                 val currentUser = supabaseClient.auth.currentUserOrNull()
 
                 Log.d("LogInActivity", "Login successful. User ID: ${currentUser?.id}")
+                Log.d("LogInActivity", "User Email: ${currentUser?.email}")
+                Log.d("LogInActivity", "Session: $session")
+
+                // Wait a moment and check session again
+                delay(500)
+                val refreshedUser = supabaseClient.auth.currentUserOrNull()
+                Log.d("LogInActivity", "Refreshed User after delay: ${refreshedUser?.id}")
 
                 withContext(Dispatchers.Main) {
                     showLoading(false)
-                    Toast.makeText(
-                        this@LogInActivity,
-                        "Login successful!",
-                        Toast.LENGTH_SHORT
-                    ).show()
 
-                    // Navigate to MainActivity
-                    navigateToMain()
+                    if (currentUser != null) {
+                        Toast.makeText(
+                            this@LogInActivity,
+                            "Login successful! Welcome ${currentUser.email}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        // Navigate to MainActivity WITH user ID
+                        navigateToMain(currentUser.id)
+                    } else {
+                        Toast.makeText(
+                            this@LogInActivity,
+                            "Login succeeded but no user session found",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
 
             } catch (e: Exception) {
@@ -175,8 +198,8 @@ class LogInActivity : AppCompatActivity() {
                     Log.d("LogInActivity", "User already logged in: ${currentUser.email}")
 
                     withContext(Dispatchers.Main) {
-                        // Navigate directly to MainActivity
-                        navigateToMain()
+                        // Navigate directly to MainActivity WITH user ID
+                        navigateToMain(currentUser.id)
                     }
                 }
             } catch (e: Exception) {
@@ -185,11 +208,19 @@ class LogInActivity : AppCompatActivity() {
         }
     }
 
-    private fun navigateToMain() {
+    private fun navigateToMain(userId: String? = null) {
         if (isNavigating) return
 
         isNavigating = true
+
         val intent = Intent(this, MainActivity::class.java)
+
+        // Pass user ID if available
+        if (userId != null) {
+            intent.putExtra("USER_ID", userId)
+            Log.d("LogInActivity", "Passing user ID to MainActivity: $userId")
+        }
+
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()

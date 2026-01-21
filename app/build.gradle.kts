@@ -62,4 +62,7 @@ dependencies {
     implementation("io.ktor:ktor-client-android:3.3.3")
     implementation("io.github.jan-tennert.supabase:auth-kt")
     implementation("io.github.jan-tennert.supabase:realtime-kt")
+
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("org.json:json:20230227")
 }

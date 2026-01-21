@@ -1,10 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">LABADA</string>
     <string name="header_title">LABADA</string>
     <string name="header_subtitle">Schedule your laundry pickup and delivery</string>
     <string name="book_appointment">Book an Appointment</string>
     <string name="select_service">Select Service</string>
-    
+
     <string name="service_wash_fold"><b>Wash &amp; Fold</b>\nProfessional wash and fold service.\n₱25</string>
     <string name="service_dry_cleaning"><b>Dry Cleaning</b>\nExpert dry cleaning for delicate items.\n₱45</string>
     <string name="service_ironing"><b>Ironing</b>\nCrisp ironing service\n₱20</string>
@@ -40,7 +41,7 @@
     <string name="label_password">Password</string>
     <string name="btn_login">Login</string>
     <string name="text_no_account">Don\'t have an account? Sign Up</string>
-    
+
     <string name="title_signup">Create Account</string>
     <string name="subtitle_signup">Create an account to make your clothes fresh</string>
     <string name="label_first_name">First Name</string>
@@ -64,12 +65,44 @@
     <string name="label_date">Date:</string>
     <string name="label_machine">Machine:</string>
 
+    <!-- Dashboard Strings -->
+    <string name="dashboard_greeting">Hey, User! 👋</string>
+    <string name="dashboard_question">How can we help you today?</string>
+    <string name="dashboard_location">Location</string>
+    <string name="dashboard_user_location">the user\'s location</string>
+    <string name="section_order">Order</string>
+    <string name="section_services">Services</string>
+    <string name="see_all">See All</string>
+    <string name="no_upcoming">No upcoming orders</string>
 
+    <!-- Short Service Names for Dashboard -->
+    <string name="name_wash_fold">Wash &amp; Fold</string>
+    <string name="name_dry_cleaning">Dry Cleaning</string>
+    <string name="name_ironing">Ironing</string>
+    <string name="name_express">Express</string>
 
+    <string name="menu_dashboard">Dashboard</string>
+    <string name="menu_book">Book</string>
+    <string name="menu_appointments">Appointments</string>
+    <string name="menu_profile">Profile</string>
 
+    <!-- Profile Strings -->
+    <string name="profile_info_title">Profile Information</string>
+    <string name="btn_edit_profile">Edit Profile</string>
+    <string name="label_full_name_header">Full Name</string>
+    <string name="user_full_name_placeholder">User Name</string>
+    <string name="user_email_placeholder">user@example.com</string>
+    <string name="user_phone_placeholder">+63 912 345 6789</string>
+    <string name="user_address_placeholder">123 Labada St, Metro Manila, Philippines</string>
+    <string name="status_email_verified">Email Verified</string>
+    <string name="status_email_desc">Your email is confirmed and active</string>
+    <string name="status_phone_verified">Phone Verified</string>
+    <string name="status_phone_desc">SMS notifications enabled</string>
+    <string name="status_default_address">Default Address</string>
+    <string name="status_address_desc">Set for pickup &amp; delivery</string>
 
-
-
-
-
+    <string name="hey_user">Hey, User! 👋</string>
+    <string name="address_not_set">Address not set</string>
+    <string name="location_not_set">Location not set</string>
+    <string name="unable_to_load_location">Unable to load location</string>
 </resources>
