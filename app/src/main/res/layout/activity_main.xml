@@ -13,7 +13,7 @@
         android:src="@drawable/bg_header"
         android:alpha="0.6" />
 
-    <!-- Bottom Decorative Background (Using it more) -->
+    <!-- Bottom Decorative Background -->
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="200dp"
@@ -97,6 +97,7 @@
                         android:columnCount="2">
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnWashFold"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -109,10 +110,12 @@
                             android:textAllCaps="false"
                             android:textColor="#333"
                             android:textSize="11sp"
+                            android:checkable="true"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDryCleaning"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -125,10 +128,12 @@
                             android:textAllCaps="false"
                             android:textColor="#333"
                             android:textSize="11sp"
+                            android:checkable="true"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnIroning"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -141,10 +146,12 @@
                             android:textAllCaps="false"
                             android:textColor="#333"
                             android:textSize="11sp"
+                            android:checkable="true"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnExpress"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -157,6 +164,7 @@
                             android:textAllCaps="false"
                             android:textColor="#333"
                             android:textSize="11sp"
+                            android:checkable="true"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
                     </GridLayout>
@@ -176,6 +184,7 @@
                         android:columnCount="2">
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMachine1"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -184,10 +193,12 @@
                             android:layout_margin="6dp"
                             android:text="@string/machine_1"
                             android:textColor="#333"
+                            android:checkable="true"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMachine2"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -196,10 +207,12 @@
                             android:layout_margin="6dp"
                             android:text="@string/machine_2"
                             android:textColor="#333"
+                            android:checkable="true"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMachine3"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -208,10 +221,12 @@
                             android:layout_margin="6dp"
                             android:text="@string/machine_3"
                             android:textColor="#333"
+                            android:checkable="true"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMachine4"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -220,10 +235,12 @@
                             android:layout_margin="6dp"
                             android:text="@string/machine_4"
                             android:textColor="#333"
+                            android:checkable="true"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMachine5"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -232,10 +249,12 @@
                             android:layout_margin="6dp"
                             android:text="@string/machine_5"
                             android:textColor="#333"
+                            android:checkable="true"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMachine6"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -244,6 +263,7 @@
                             android:layout_margin="6dp"
                             android:text="@string/machine_6"
                             android:textColor="#333"
+                            android:checkable="true"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
                     </GridLayout>
@@ -278,6 +298,7 @@
                         android:columnCount="3">
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTime9am"
                             style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -286,9 +307,11 @@
                             android:layout_margin="4dp"
                             android:text="@string/time_9am"
                             android:textColor="#2d58a9"
+                            android:checkable="true"
                             app:cornerRadius="12dp" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTime11am"
                             style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -297,9 +320,11 @@
                             android:layout_margin="4dp"
                             android:text="@string/time_11am"
                             android:textColor="#2d58a9"
+                            android:checkable="true"
                             app:cornerRadius="12dp" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTime1pm"
                             style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -308,9 +333,11 @@
                             android:layout_margin="4dp"
                             android:text="@string/time_1pm"
                             android:textColor="#2d58a9"
+                            android:checkable="true"
                             app:cornerRadius="12dp" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTime3pm"
                             style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -319,9 +346,11 @@
                             android:layout_margin="4dp"
                             android:text="@string/time_3pm"
                             android:textColor="#2d58a9"
+                            android:checkable="true"
                             app:cornerRadius="12dp" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTime5pm"
                             style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -330,9 +359,11 @@
                             android:layout_margin="4dp"
                             android:text="@string/time_5pm"
                             android:textColor="#2d58a9"
+                            android:checkable="true"
                             app:cornerRadius="12dp" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTime7pm"
                             style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -341,6 +372,7 @@
                             android:layout_margin="4dp"
                             android:text="@string/time_7pm"
                             android:textColor="#2d58a9"
+                            android:checkable="true"
                             app:cornerRadius="12dp" />
                     </GridLayout>
 
@@ -352,33 +384,38 @@
                         android:textColor="#333"
                         android:textStyle="bold" />
 
-                    <LinearLayout
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/toggleGroupDelivery"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_marginVertical="6dp"
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMethodDropOff"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_margin="6dp"
                             android:layout_weight="1"
+                            android:layout_margin="6dp"
                             android:text="@string/method_cod"
                             android:textColor="#333"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMethodPickup"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_margin="6dp"
                             android:layout_weight="1"
+                            android:layout_margin="6dp"
                             android:text="@string/method_pickup"
                             android:textColor="#333"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
-                    </LinearLayout>
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
 
                     <!-- PAYMENT -->
                     <TextView
@@ -389,36 +426,42 @@
                         android:textColor="#333"
                         android:textStyle="bold" />
 
-                    <LinearLayout
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/toggleGroupPayment"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_marginVertical="6dp"
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPaymentCash"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_margin="6dp"
                             android:layout_weight="1"
+                            android:layout_margin="6dp"
                             android:text="@string/payment_cash"
                             android:textColor="#333"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPaymentEWallet"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_margin="6dp"
                             android:layout_weight="1"
+                            android:layout_margin="6dp"
                             android:text="@string/payment_ewallet"
                             android:textColor="#333"
                             app:cornerRadius="12dp"
                             app:strokeColor="#ccc" />
-                    </LinearLayout>
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
 
                     <!-- BOOK BUTTON -->
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBookAppointment"
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:layout_marginTop="40dp"

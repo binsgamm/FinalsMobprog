@@ -89,6 +89,7 @@
     <!-- Profile Strings -->
     <string name="profile_info_title">Profile Information</string>
     <string name="btn_edit_profile">Edit Profile</string>
+    <string name="btn_logout">Logout</string>
     <string name="label_full_name_header">Full Name</string>
     <string name="user_full_name_placeholder">User Name</string>
     <string name="user_email_placeholder">user@example.com</string>
