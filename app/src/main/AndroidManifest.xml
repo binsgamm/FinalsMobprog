@@ -33,8 +33,9 @@
             android:windowSoftInputMode="adjustResize|stateHidden"  />
 
         <activity
-            android:name=".MainActivity"
-            android:exported="false" />
+            android:name=".DashboardActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
 
     </application>
 

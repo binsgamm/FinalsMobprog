@@ -150,8 +150,8 @@ class LogInActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
 
-                        // Navigate to MainActivity WITH user ID
-                        navigateToMain(currentUser.id)
+                        // Navigate to DashboardActivity WITH user ID
+                        navigateToDashboard(currentUser.id)
                     } else {
                         Toast.makeText(
                             this@LogInActivity,
@@ -198,8 +198,8 @@ class LogInActivity : AppCompatActivity() {
                     Log.d("LogInActivity", "User already logged in: ${currentUser.email}")
 
                     withContext(Dispatchers.Main) {
-                        // Navigate directly to MainActivity WITH user ID
-                        navigateToMain(currentUser.id)
+                        // Navigate directly to DashboardActivity WITH user ID
+                        navigateToDashboard(currentUser.id)
                     }
                 }
             } catch (e: Exception) {
@@ -208,17 +208,17 @@ class LogInActivity : AppCompatActivity() {
         }
     }
 
-    private fun navigateToMain(userId: String? = null) {
+    private fun navigateToDashboard(userId: String? = null) {
         if (isNavigating) return
 
         isNavigating = true
 
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, DashboardActivity::class.java)
 
         // Pass user ID if available
         if (userId != null) {
             intent.putExtra("USER_ID", userId)
-            Log.d("LogInActivity", "Passing user ID to MainActivity: $userId")
+            Log.d("LogInActivity", "Passing user ID to DashboardActivity: $userId")
         }
 
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

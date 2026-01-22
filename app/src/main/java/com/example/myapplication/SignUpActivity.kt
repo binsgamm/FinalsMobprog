@@ -297,7 +297,8 @@ class SignUpActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Log.d("SignUpActivity", "Starting signup for: ${userData.email}")
+                Log.d("SignUpActivity", "=== STARTING SIGNUP PROCESS ===")
+                Log.d("SignUpActivity", "Email: ${userData.email}")
 
                 // Proper null safety
                 val authResult = supabaseClient.auth.signUpWith(Email) {
@@ -305,31 +306,50 @@ class SignUpActivity : AppCompatActivity() {
                     this.password = userData.password
                 }
 
-                Log.d("SignUpActivity", "Auth result received")
+                Log.d("SignUpActivity", "Auth result: $authResult")
+                Log.d("SignUpActivity", "Auth result id: ${authResult?.id}")
 
-                // Fixed null safety
-                val userId = authResult?.id ?:
-                (supabaseClient.auth.currentUserOrNull()?.id ?:
-                throw Exception("Failed to get user ID"))
+                // Get user ID with fallback
+                val userId = authResult?.id ?: supabaseClient.auth.currentUserOrNull()?.id
 
-                Log.d("SignUpActivity", "User ID: $userId")
-
-                // Insert into customers table
-                val customerData = mutableMapOf(
-                    "user_id" to userId,
-                    "f_name" to userData.firstName,
-                    "l_name" to userData.lastName,
-                    "email" to userData.email,
-                    "phone_num" to "+63${userData.phone}",
-                    "address" to userData.address
-                )
-
-                if (userData.middleName.isNotEmpty()) {
-                    customerData["m_name"] = userData.middleName
+                if (userId == null) {
+                    throw Exception("Failed to get user ID after signup")
                 }
 
-                Log.d("SignUpActivity", "Inserting customer: $customerData")
-                supabaseClient.postgrest.from("customers").insert(customerData)
+                Log.d("SignUpActivity", "=== USER ID OBTAINED ===")
+                Log.d("SignUpActivity", "User ID: $userId")
+                Log.d("SignUpActivity", "User ID length: ${userId.length}")
+                Log.d("SignUpActivity", "User ID type: ${userId::class.simpleName}")
+
+                // Create customer data object
+                val customerData = CustomerInsert(
+                    user_id = userId,
+                    f_name = userData.firstName,
+                    m_name = userData.middleName.ifEmpty { null },
+                    l_name = userData.lastName,
+                    email = userData.email,
+                    phone_num = "+63${userData.phone}",
+                    address = userData.address
+                )
+
+                Log.d("SignUpActivity", "=== INSERTING INTO CUSTOMERS TABLE ===")
+                Log.d("SignUpActivity", "Customer data: $customerData")
+
+                val insertResponse = supabaseClient.postgrest.from("customers").insert(customerData)
+
+                Log.d("SignUpActivity", "=== INSERT RESPONSE ===")
+                Log.d("SignUpActivity", "Response data: ${insertResponse.data}")
+
+                // Verify insertion
+                val verifyResponse = supabaseClient.postgrest.from("customers")
+                    .select() {
+                        filter {
+                            eq("user_id", userId)
+                        }
+                    }
+
+                Log.d("SignUpActivity", "=== VERIFICATION QUERY ===")
+                Log.d("SignUpActivity", "Verify response: ${verifyResponse.data}")
 
                 withContext(Dispatchers.Main) {
                     showLoading(false)
@@ -342,7 +362,9 @@ class SignUpActivity : AppCompatActivity() {
                 }
 
             } catch (e: Exception) {
-                Log.e("SignUpActivity", "Signup error: ${e.message}", e)
+                Log.e("SignUpActivity", "=== SIGNUP ERROR ===")
+                Log.e("SignUpActivity", "Error message: ${e.message}", e)
+                Log.e("SignUpActivity", "Error stack trace:", e)
 
                 withContext(Dispatchers.Main) {
                     showLoading(false)
@@ -372,4 +394,15 @@ data class UserData(
     val phone: String,
     val email: String,
     val password: String
+)
+
+@kotlinx.serialization.Serializable
+data class CustomerInsert(
+    val user_id: String,
+    val f_name: String,
+    val m_name: String? = null,
+    val l_name: String,
+    val email: String,
+    val phone_num: String,
+    val address: String
 )
