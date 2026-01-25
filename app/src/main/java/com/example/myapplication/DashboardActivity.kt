@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButton
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.createSupabaseClient
@@ -22,6 +23,11 @@ class DashboardActivity : AppCompatActivity() {
 
     private lateinit var tvGreeting: TextView
     private lateinit var tvLocation: TextView
+
+    // Navigation buttons
+    private lateinit var btnBook: MaterialButton
+    private lateinit var btnAppointments: MaterialButton
+    private lateinit var btnProfile: MaterialButton
 
     private var userId: String? = null
 
@@ -56,6 +62,46 @@ class DashboardActivity : AppCompatActivity() {
     private fun initializeViews() {
         tvGreeting = findViewById(R.id.tvGreeting)
         tvLocation = findViewById(R.id.tvLocation)
+
+        // Navigation buttons - these need to match the IDs in your XML
+        // Based on the XML structure, the buttons are in the navbar
+        btnBook = findViewById(R.id.btnBook)
+        btnAppointments = findViewById(R.id.btnAppointments)
+        btnProfile = findViewById(R.id.btnProfile)
+
+        setupNavigationListeners()
+    }
+
+    private fun setupNavigationListeners() {
+        btnBook.setOnClickListener {
+            navigateToBooking()
+        }
+
+        btnAppointments.setOnClickListener {
+            navigateToAppointments()
+        }
+
+        btnProfile.setOnClickListener {
+            navigateToProfile()
+        }
+    }
+
+    private fun navigateToBooking() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("USER_ID", userId)
+        startActivity(intent)
+    }
+
+    private fun navigateToAppointments() {
+        val intent = Intent(this, AppointmentsActivity::class.java)
+        intent.putExtra("USER_ID", userId)
+        startActivity(intent)
+    }
+
+    private fun navigateToProfile() {
+        val intent = Intent(this, ProfileActivity::class.java)
+        intent.putExtra("USER_ID", userId)
+        startActivity(intent)
     }
 
     private fun loadUserData() {
@@ -175,12 +221,3 @@ class DashboardActivity : AppCompatActivity() {
         loadUserData()
     }
 }
-
-// Data class for deserializing customer data from Supabase
-@Serializable
-data class Customer(
-    val f_name: String,
-    val l_name: String,
-    val address: String? = null,
-    val user_id: String? = null
-)

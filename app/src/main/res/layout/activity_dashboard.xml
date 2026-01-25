@@ -55,6 +55,7 @@
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBook"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -66,6 +67,7 @@
                         app:iconTint="#11264d" />
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAppointments"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -77,6 +79,7 @@
                         app:iconTint="#11264d" />
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnProfile"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

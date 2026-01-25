@@ -382,27 +382,4 @@ class SignUpActivity : AppCompatActivity() {
         btnSignUp.isEnabled = !isLoading
         btnSignUp.text = if (isLoading) "Creating Account..." else "Sign Up"
     }
-
-
 }
-
-data class UserData(
-    val firstName: String,
-    val middleName: String,
-    val lastName: String,
-    val address: String,
-    val phone: String,
-    val email: String,
-    val password: String
-)
-
-@kotlinx.serialization.Serializable
-data class CustomerInsert(
-    val user_id: String,
-    val f_name: String,
-    val m_name: String? = null,
-    val l_name: String,
-    val email: String,
-    val phone_num: String,
-    val address: String
-)

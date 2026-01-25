@@ -2,4 +2,21 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Service and Machine Button Colors -->
+    <color name="service_button_checked">#2d58a9</color>
+    <color name="service_button_unchecked">#FFFFFF</color>
+    <color name="service_button_stroke_checked">#2d58a9</color>
+    <color name="service_button_stroke_unchecked">#CCCCCC</color>
+    <color name="service_button_text_checked">#FFFFFF</color>
+    <color name="service_button_text_unchecked">#333333</color>
+
+    <!-- Time Button Colors -->
+    <color name="time_button_checked">#E3F2FD</color>
+    <color name="time_button_unchecked">#FFFFFF</color>
+    <color name="time_button_stroke_checked">#2d58a9</color>
+    <color name="time_button_stroke_unchecked">#2d58a9</color>
+    <color name="time_button_text_checked">#2d58a9</color>
+    <color name="time_button_text_unchecked">#2d58a9</color>
+
 </resources>
