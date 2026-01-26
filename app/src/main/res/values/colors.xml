@@ -19,4 +19,13 @@
     <color name="time_button_text_checked">#2d58a9</color>
     <color name="time_button_text_unchecked">#2d58a9</color>
 
+    <!-- Your existing styles -->
+
+    <!-- Calendar Colors - Blue Theme -->
+    <color name="calendar_primary">#2d58a9</color>
+    <color name="calendar_accent">#2d58a9</color>
+    <color name="calendar_date_text">#333333</color>
+    <color name="calendar_weekday_text">#2d58a9</color>
+    <color name="calendar_background">#FFFFFF</color>
+
 </resources>

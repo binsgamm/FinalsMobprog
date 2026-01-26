@@ -41,7 +41,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnMachine6: MaterialButton
 
     // Calendar and Time
-    private lateinit var calendarView: CalendarView
+    // Date selection
+    private lateinit var btnSelectDate: MaterialButton
+    private lateinit var tvSelectedDate: TextView
     private lateinit var btnTime9am: MaterialButton
     private lateinit var btnTime11am: MaterialButton
     private lateinit var btnTime1pm: MaterialButton
@@ -160,8 +162,9 @@ class MainActivity : AppCompatActivity() {
         btnMachine5 = findViewById(R.id.btnMachine5)
         btnMachine6 = findViewById(R.id.btnMachine6)
 
-        // Calendar and time
-        calendarView = findViewById(R.id.calendarView)
+        // Date selection and time
+        btnSelectDate = findViewById(R.id.btnSelectDate)
+        tvSelectedDate = findViewById(R.id.tvSelectedDate)
         btnTime9am = findViewById(R.id.btnTime9am)
         btnTime11am = findViewById(R.id.btnTime11am)
         btnTime1pm = findViewById(R.id.btnTime1pm)
@@ -175,7 +178,7 @@ class MainActivity : AppCompatActivity() {
         btnMethodPickup = findViewById(R.id.btnMethodPickup)
 
         toggleGroupPayment = findViewById(R.id.toggleGroupPayment)
-        btnPaymentCash = findViewById(R.id.btnPaymentCash)
+            btnPaymentCash = findViewById(R.id.btnPaymentCash)
         btnPaymentEWallet = findViewById(R.id.btnPaymentEWallet)
 
         // Detergent selection
@@ -234,8 +237,35 @@ class MainActivity : AppCompatActivity() {
             btnMachine6 to "Machine 6"
         )
 
+        // Initially disable all machines until date and time are selected
+        machineButtons.forEach { (button, _) ->
+            button.isEnabled = false
+            button.alpha = 0.4f
+        }
+
         machineButtons.forEach { (button, machineName) ->
             button.setOnClickListener {
+                // Check if date and time are selected first
+                if (selectedDate == null) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Please select a date first",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    button.isChecked = false
+                    return@setOnClickListener
+                }
+
+                if (selectedTime == null) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Please select a time first",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    button.isChecked = false
+                    return@setOnClickListener
+                }
+
                 // Check if this machine is booked
                 if (bookedMachines.contains(machineName)) {
                     // Machine is booked, prevent selection
@@ -257,26 +287,58 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Calendar
-        // Set minimum date to today (disable past dates)
-        calendarView.minDate = System.currentTimeMillis()
+        // Date Picker Button
+        btnSelectDate.setOnClickListener {
+            // Create MaterialDatePicker
+            val today = Calendar.getInstance()
+            today.set(Calendar.HOUR_OF_DAY, 0)
+            today.set(Calendar.MINUTE, 0)
+            today.set(Calendar.SECOND, 0)
+            today.set(Calendar.MILLISECOND, 0)
 
-        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val calendar = Calendar.getInstance()
-            calendar.set(year, month, dayOfMonth)
-            selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
-            Log.d("MainActivity", "Selected date: $selectedDate")
+            val maxDate = Calendar.getInstance()
+            maxDate.add(Calendar.MONTH, 3)
 
-            // Clear time selection when date changes
-            selectedTime = null
+            val datePicker = com.google.android.material.datepicker.MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Date")
+                .setSelection(com.google.android.material.datepicker.MaterialDatePicker.todayInUtcMilliseconds())
+                .setCalendarConstraints(
+                    com.google.android.material.datepicker.CalendarConstraints.Builder()
+                        .setStart(today.timeInMillis)
+                        .setEnd(maxDate.timeInMillis)
+                        .setValidator(com.google.android.material.datepicker.DateValidatorPointForward.from(today.timeInMillis))
+                        .build()
+                )
+                .setTheme(com.google.android.material.R.style.ThemeOverlay_Material3_MaterialCalendar)
+                .build()
 
-            // Check which time slots are fully booked for this date
-            checkTimeSlotAvailability()
+            datePicker.addOnPositiveButtonClickListener { selection ->
+                val calendar = Calendar.getInstance()
+                calendar.timeInMillis = selection
+                selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
 
-            // If a time was already selected, check machine availability
-            if (selectedTime != null) {
-                checkMachineAvailability()
+                // Update UI
+                val displayDate = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault()).format(calendar.time)
+                tvSelectedDate.text = displayDate
+                tvSelectedDate.setTextColor(android.graphics.Color.parseColor("#2d58a9"))
+
+                Log.d("MainActivity", "Selected date: $selectedDate")
+
+                // Check which time slots are fully booked for this date
+                checkTimeSlotAvailability()
+
+                // If a time is already selected, check machine availability for new date
+                if (selectedTime != null) {
+                    Log.d("MainActivity", "Date changed with time already selected, refreshing machines...")
+                    checkMachineAvailability()
+                } else {
+                    // Clear machine availability until time is selected
+                    bookedMachines.clear()
+                    updateMachineButtons()
+                }
             }
+
+            datePicker.show(supportFragmentManager, "DATE_PICKER")
         }
 
         // Time buttons - single selection
@@ -307,12 +369,15 @@ class MainActivity : AppCompatActivity() {
                     selectedTime = time
                     Log.d("MainActivity", "Selected time: $time")
 
-                    // Clear machine selection when time changes
-                    selectedMachine = null
-
                     // Check machine availability for the selected date/time combination
                     if (selectedDate != null) {
                         checkMachineAvailability()
+                    } else {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Please select a date first",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -678,19 +743,25 @@ class MainActivity : AppCompatActivity() {
         timeButtons.forEach { (button, time) ->
             val isFullyBooked = fullyBookedTimes.contains(time)
 
+            // Visual state - gray out fully booked times
             button.isEnabled = !isFullyBooked
             button.alpha = if (isFullyBooked) 0.4f else 1.0f
 
-            // Clear selection if this time is now fully booked
+            // Handle selection state
             if (isFullyBooked && selectedTime == time) {
+                // This time is fully booked and was selected - clear it
                 button.isChecked = false
                 selectedTime = null
                 selectedMachine = null
                 bookedMachines.clear()
-                updateMachineButtons()
+                Log.d("MainActivity", "Time $time is fully booked - cleared selection")
+            } else if (!isFullyBooked && selectedTime == time) {
+                // This time is available and is selected - keep it checked
+                button.isChecked = true
+                Log.d("MainActivity", "Time $time still selected and available")
             }
 
-            Log.d("MainActivity", "Time $time - Fully booked: $isFullyBooked, Enabled: ${button.isEnabled}")
+            Log.d("MainActivity", "Time $time - Fully booked: $isFullyBooked, Selected: ${selectedTime == time}")
         }
     }
 
@@ -704,25 +775,41 @@ class MainActivity : AppCompatActivity() {
             btnMachine6 to "Machine 6"
         )
 
+        // Only update if date and time are selected
+        if (selectedDate == null || selectedTime == null) {
+            // Disable all machines if date/time not selected
+            machineButtons.forEach { (button, _) ->
+                button.isEnabled = false
+                button.alpha = 0.4f
+                button.isChecked = false
+            }
+            selectedMachine = null
+            Log.d("MainActivity", "Machines disabled - no date/time selected")
+            return
+        }
+
+        // Enable/disable based on availability
         machineButtons.forEach { (button, machineName) ->
             val isBooked = bookedMachines.contains(machineName)
 
+            // Visual state - gray out booked machines, enable available ones
             button.isEnabled = !isBooked
             button.alpha = if (isBooked) 0.4f else 1.0f
 
-            // Only clear selection if the selected machine is now booked
-            if (isBooked && selectedMachine == machineName) {
-                button.isChecked = false
-                selectedMachine = null
-                Toast.makeText(
-                    this,
-                    "$machineName is no longer available for this time",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            // If machine is available and was previously selected, keep it selected
-            else if (!isBooked && selectedMachine == machineName) {
-                button.isChecked = true
+            // Handle selection state
+            if (isBooked) {
+                // If this booked machine was selected, clear the selection
+                if (selectedMachine == machineName) {
+                    button.isChecked = false
+                    selectedMachine = null
+                    Log.d("MainActivity", "$machineName was selected but is now booked - cleared selection")
+                }
+            } else {
+                // If this available machine is the selected one, keep it checked
+                if (selectedMachine == machineName) {
+                    button.isChecked = true
+                    Log.d("MainActivity", "$machineName still selected and available")
+                }
             }
 
             Log.d("MainActivity", "$machineName - Booked: $isBooked, Enabled: ${button.isEnabled}, Selected: ${selectedMachine == machineName}")
@@ -730,11 +817,7 @@ class MainActivity : AppCompatActivity() {
 
         val bookedCount = bookedMachines.size
         if (bookedCount > 0 && bookedCount < 6) {
-            Toast.makeText(
-                this,
-                "$bookedCount machine(s) unavailable at this time",
-                Toast.LENGTH_SHORT
-            ).show()
+            Log.d("MainActivity", "$bookedCount machine(s) unavailable at this time")
         } else if (bookedCount == 6) {
             Toast.makeText(
                 this,

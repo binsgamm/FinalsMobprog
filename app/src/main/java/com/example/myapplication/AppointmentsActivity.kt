@@ -11,7 +11,6 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -69,20 +68,27 @@ class AppointmentsActivity : AppCompatActivity() {
             try {
                 Log.d("AppointmentsActivity", "=== LOADING USER DATA ===")
 
-                // Force initialization of supabaseClient
-                @Suppress("UNUSED_VARIABLE")
-                val client = supabaseClient
-                Log.d("AppointmentsActivity", "Supabase client initialized")
+                // Get userId from intent first (passed from MainActivity after booking)
+                userId = intent.getStringExtra("USER_ID")
+                Log.d("AppointmentsActivity", "USER_ID from intent: $userId")
 
-                // Wait for session to load
-                delay(2500)
+                // If not in intent, try getting from current session
+                if (userId == null) {
+                    // Force initialization of supabaseClient
+                    @Suppress("UNUSED_VARIABLE")
+                    val client = supabaseClient
+                    Log.d("AppointmentsActivity", "Supabase client initialized")
 
-                val currentUser = supabaseClient.auth.currentUserOrNull()
-                Log.d("AppointmentsActivity", "Session check - User: ${currentUser?.id}")
+                    // Wait briefly for session to load (reduced from 2500ms)
+                    delay(500)
 
-                userId = intent.getStringExtra("USER_ID") ?: currentUser?.id
+                    val currentUser = supabaseClient.auth.currentUserOrNull()
+                    Log.d("AppointmentsActivity", "Session check - User: ${currentUser?.id}")
+                    userId = currentUser?.id
+                }
 
                 if (userId == null) {
+                    Log.e("AppointmentsActivity", "ERROR: No user ID found!")
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             this@AppointmentsActivity,
@@ -94,27 +100,50 @@ class AppointmentsActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                // Get customer_id
-                val customerResponse = supabaseClient.from("customers")
-                    .select() {
-                        filter {
-                            eq("user_id", userId!!)
-                        }
-                    }
+                Log.d("AppointmentsActivity", "Final userId: $userId")
 
-                val json = Json { ignoreUnknownKeys = true }
-                val customers = json.decodeFromString<List<Customer>>(customerResponse.data)
+                // Get customer_id - with retry logic since session might not be fully loaded
+                Log.d("AppointmentsActivity", "Querying customers for user_id: $userId")
+
+                var customers: List<Customer> = emptyList()
+                var retryCount = 0
+                val maxRetries = 3
+
+                while (customers.isEmpty() && retryCount < maxRetries) {
+                    val customerResponse = supabaseClient.from("customers")
+                        .select {
+                            filter {
+                                eq("user_id", userId!!)
+                            }
+                        }
+
+                    Log.d("AppointmentsActivity", "Attempt ${retryCount + 1}: Customer response: ${customerResponse.data}")
+
+                    val json = Json { ignoreUnknownKeys = true }
+                    customers = json.decodeFromString<List<Customer>>(customerResponse.data)
+
+                    if (customers.isEmpty() && retryCount < maxRetries - 1) {
+                        Log.d("AppointmentsActivity", "No customers found, waiting 500ms before retry...")
+                        delay(500)
+                        retryCount++
+                    } else {
+                        break
+                    }
+                }
+
+                Log.d("AppointmentsActivity", "Customers decoded: ${customers.size} found after $retryCount retries")
 
                 if (customers.isNotEmpty()) {
                     customerId = customers[0].customer_id
-                    Log.d("AppointmentsActivity", "Customer ID: $customerId")
+                    Log.d("AppointmentsActivity", "Customer ID: $customerId (${customers[0].f_name} ${customers[0].l_name})")
 
                     loadAppointments()
                 } else {
+                    Log.e("AppointmentsActivity", "ERROR: No customer found for user_id: $userId after $maxRetries attempts")
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             this@AppointmentsActivity,
-                            "Customer profile not found",
+                            "Customer profile not found. Please try again.",
                             Toast.LENGTH_LONG
                         ).show()
                         finish()
@@ -141,66 +170,73 @@ class AppointmentsActivity : AppCompatActivity() {
 
                 // Get all appointments for this customer
                 val appointmentsResponse = supabaseClient.from("appointments")
-                    .select() {
+                    .select {
                         filter {
                             eq("customer_id", customerId!!)
                         }
-                        order("appointment_date", Order.DESCENDING)
-                        order("appointment_time", Order.DESCENDING)
                     }
 
                 Log.d("AppointmentsActivity", "Appointments response: ${appointmentsResponse.data}")
 
                 val json = Json { ignoreUnknownKeys = true }
+                // Sort in Kotlin after fetching (simpler and works with all Supabase versions)
                 val appointmentsList = json.decodeFromString<List<AppointmentResponse>>(appointmentsResponse.data)
+                    .sortedWith(
+                        compareByDescending<AppointmentResponse> { it.appointment_date }
+                            .thenByDescending { it.appointment_time }
+                    )
 
-                // For each appointment, load services and payment info
-                val detailedAppointments = mutableListOf<AppointmentWithDetails>()
+                if (appointmentsList.isEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@AppointmentsActivity,
+                            "No appointments found",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    return@launch
+                }
 
-                for (appointment in appointmentsList) {
+                // Pre-load all services (one query instead of many)
+                val allServicesResponse = supabaseClient.from("services").select()
+                val allServices = json.decodeFromString<List<Service>>(allServicesResponse.data)
+                val servicesMap = allServices.associateBy { it.service_id }
+                Log.d("AppointmentsActivity", "Loaded ${allServices.size} services")
+
+                // Pre-load all appointment_services for these appointments (one query)
+                val appointmentIds = appointmentsList.map { it.appointment_id }
+                val allAppointmentServicesResponse = supabaseClient.from("appointment_services")
+                    .select()
+
+                val allAppointmentServices = json.decodeFromString<List<AppointmentService>>(allAppointmentServicesResponse.data)
+                val appointmentServicesMap = allAppointmentServices
+                    .filter { it.appointment_id in appointmentIds }
+                    .groupBy { it.appointment_id }
+                Log.d("AppointmentsActivity", "Loaded appointment services")
+
+                // Pre-load all payments for these appointments (one query)
+                val allPaymentsResponse = supabaseClient.from("payments").select()
+                val allPayments = json.decodeFromString<List<Payment>>(allPaymentsResponse.data)
+                val paymentsMap = allPayments
+                    .filter { it.appointment_id in appointmentIds }
+                    .groupBy { it.appointment_id }
+                Log.d("AppointmentsActivity", "Loaded payments")
+
+                // For each appointment, build details from cached data
+                val detailedAppointments = appointmentsList.map { appointment ->
                     // Get services for this appointment
-                    val servicesResponse = supabaseClient.from("appointment_services")
-                        .select() {
-                            filter {
-                                eq("appointment_id", appointment.appointment_id)
-                            }
-                        }
-
-                    val appointmentServices = json.decodeFromString<List<AppointmentService>>(servicesResponse.data)
-
-                    // Get service names
-                    val serviceNames = mutableListOf<String>()
-                    for (appointmentService in appointmentServices) {
-                        val serviceResponse = supabaseClient.from("services")
-                            .select() {
-                                filter {
-                                    eq("service_id", appointmentService.service_id)
-                                }
-                            }
-
-                        val services = json.decodeFromString<List<Service>>(serviceResponse.data)
-                        if (services.isNotEmpty()) {
-                            serviceNames.add(services[0].service_name)
-                        }
+                    val appointmentServices = appointmentServicesMap[appointment.appointment_id] ?: emptyList()
+                    val serviceNames = appointmentServices.mapNotNull { appointmentService ->
+                        servicesMap[appointmentService.service_id]?.service_name
                     }
 
                     // Get payment method
-                    val paymentResponse = supabaseClient.from("payments")
-                        .select() {
-                            filter {
-                                eq("appointment_id", appointment.appointment_id)
-                            }
-                        }
+                    val paymentMethod = paymentsMap[appointment.appointment_id]?.firstOrNull()?.payment_method
 
-                    val payments = json.decodeFromString<List<Payment>>(paymentResponse.data)
-                    val paymentMethod = payments.firstOrNull()?.payment_method
-
-                    detailedAppointments.add(
-                        AppointmentWithDetails(
-                            appointment = appointment,
-                            services = serviceNames,
-                            paymentMethod = paymentMethod
-                        )
+                    AppointmentWithDetails(
+                        appointment = appointment,
+                        services = serviceNames,
+                        paymentMethod = paymentMethod
                     )
                 }
 
@@ -210,14 +246,6 @@ class AppointmentsActivity : AppCompatActivity() {
                     appointments.clear()
                     appointments.addAll(detailedAppointments)
                     appointmentsAdapter.notifyDataSetChanged()
-
-                    if (appointments.isEmpty()) {
-                        Toast.makeText(
-                            this@AppointmentsActivity,
-                            "No appointments found",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
                 }
 
             } catch (e: Exception) {
