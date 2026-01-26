@@ -2,7 +2,10 @@ package com.example.myapplication
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.CalendarView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
@@ -55,6 +58,33 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnPaymentCash: MaterialButton
     private lateinit var btnPaymentEWallet: MaterialButton
 
+    // Detergent selection
+    private lateinit var toggleGroupDetergent: MaterialButtonToggleGroup
+    private lateinit var btnDetergentOwn: MaterialButton
+    private lateinit var btnDetergentAddOn: MaterialButton
+    private lateinit var layoutBrandSelection: LinearLayout
+    private lateinit var toggleGroupBrand: MaterialButtonToggleGroup
+    private lateinit var btnBrandX: MaterialButton
+    private lateinit var btnBrandY: MaterialButton
+    private lateinit var btnBrandZ: MaterialButton
+    private lateinit var btnQuantityMinus: MaterialButton
+    private lateinit var btnQuantityPlus: MaterialButton
+    private lateinit var tvQuantity: TextView
+    private lateinit var tvDetergentTotal: TextView
+
+    // Booking summary
+    private lateinit var tvServicesTotal: TextView
+    private lateinit var tvDetergentCost: TextView
+    private lateinit var layoutDetergentCost: LinearLayout
+    private lateinit var tvGrandTotal: TextView
+
+    // Payment proof (E-Wallet)
+    private lateinit var layoutPaymentProof: LinearLayout
+    private lateinit var btnUploadProof: MaterialButton
+    private lateinit var cardImagePreview: androidx.cardview.widget.CardView
+    private lateinit var ivPaymentProof: android.widget.ImageView
+    private lateinit var btnRemoveProof: MaterialButton
+
     // Book Button
     private lateinit var btnBookAppointment: MaterialButton
 
@@ -65,6 +95,25 @@ class MainActivity : AppCompatActivity() {
     private var selectedTime: String? = null
     private var selectedDeliveryMethod: String? = null
     private var selectedPaymentMethod: String? = null
+
+    // Detergent add-ons
+    private var selectedDetergentBrand: String? = null  // "Brand X", "Brand Y", or "Brand Z"
+    private var selectedDetergentQuantity: Int = 1  // Quantity of detergent
+    private val detergentPricePerUnit: Double = 30.0  // ₱30 per unit
+
+    // Machine availability tracking
+    private val bookedMachines = mutableSetOf<String>()  // Set of booked machines for selected date/time
+
+    // Service pricing cache
+    private val servicePrices = mutableMapOf<Int, Double>()  // service_id to price mapping
+
+    // Time slot availability (for selected date)
+    private val fullyBookedTimes = mutableSetOf<String>()  // Time slots where all 6 machines are booked
+
+    // E-Wallet payment proof
+    private var paymentProofUri: android.net.Uri? = null
+    private var paymentProofBase64: String? = null
+    private val PICK_IMAGE_REQUEST = 1001
 
     private var userId: String? = null
     private var customerId: Int? = null
@@ -129,6 +178,33 @@ class MainActivity : AppCompatActivity() {
         btnPaymentCash = findViewById(R.id.btnPaymentCash)
         btnPaymentEWallet = findViewById(R.id.btnPaymentEWallet)
 
+        // Detergent selection
+        toggleGroupDetergent = findViewById(R.id.toggleGroupDetergent)
+        btnDetergentOwn = findViewById(R.id.btnDetergentOwn)
+        btnDetergentAddOn = findViewById(R.id.btnDetergentAddOn)
+        layoutBrandSelection = findViewById(R.id.layoutBrandSelection)
+        toggleGroupBrand = findViewById(R.id.toggleGroupBrand)
+        btnBrandX = findViewById(R.id.btnBrandX)
+        btnBrandY = findViewById(R.id.btnBrandY)
+        btnBrandZ = findViewById(R.id.btnBrandZ)
+        btnQuantityMinus = findViewById(R.id.btnQuantityMinus)
+        btnQuantityPlus = findViewById(R.id.btnQuantityPlus)
+        tvQuantity = findViewById(R.id.tvQuantity)
+        tvDetergentTotal = findViewById(R.id.tvDetergentTotal)
+
+        // Booking summary
+        tvServicesTotal = findViewById(R.id.tvServicesTotal)
+        tvDetergentCost = findViewById(R.id.tvDetergentCost)
+        layoutDetergentCost = findViewById(R.id.layoutDetergentCost)
+        tvGrandTotal = findViewById(R.id.tvGrandTotal)
+
+        // Payment proof
+        layoutPaymentProof = findViewById(R.id.layoutPaymentProof)
+        btnUploadProof = findViewById(R.id.btnUploadProof)
+        cardImagePreview = findViewById(R.id.cardImagePreview)
+        ivPaymentProof = findViewById(R.id.ivPaymentProof)
+        btnRemoveProof = findViewById(R.id.btnRemoveProof)
+
         // Book button
         btnBookAppointment = findViewById(R.id.btnBookAppointment)
 
@@ -160,21 +236,47 @@ class MainActivity : AppCompatActivity() {
 
         machineButtons.forEach { (button, machineName) ->
             button.setOnClickListener {
-                // Deselect all other machines
-                machineButtons.forEach { (btn, _) ->
-                    btn.isChecked = btn == button
+                // Check if this machine is booked
+                if (bookedMachines.contains(machineName)) {
+                    // Machine is booked, prevent selection
+                    button.isChecked = false
+                    Toast.makeText(
+                        this@MainActivity,
+                        "$machineName is already booked for this time",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    // Machine is available, allow selection
+                    // Deselect all other machines
+                    machineButtons.forEach { (btn, _) ->
+                        btn.isChecked = btn == button
+                    }
+                    selectedMachine = machineName
+                    Log.d("MainActivity", "Selected machine: $machineName")
                 }
-                selectedMachine = machineName
-                Log.d("MainActivity", "Selected machine: $machineName")
             }
         }
 
         // Calendar
+        // Set minimum date to today (disable past dates)
+        calendarView.minDate = System.currentTimeMillis()
+
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             val calendar = Calendar.getInstance()
             calendar.set(year, month, dayOfMonth)
             selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
             Log.d("MainActivity", "Selected date: $selectedDate")
+
+            // Clear time selection when date changes
+            selectedTime = null
+
+            // Check which time slots are fully booked for this date
+            checkTimeSlotAvailability()
+
+            // If a time was already selected, check machine availability
+            if (selectedTime != null) {
+                checkMachineAvailability()
+            }
         }
 
         // Time buttons - single selection
@@ -189,12 +291,30 @@ class MainActivity : AppCompatActivity() {
 
         timeButtons.forEach { (button, time) ->
             button.setOnClickListener {
-                // Deselect all other times
-                timeButtons.forEach { (btn, _) ->
-                    btn.isChecked = btn == button
+                // Check if this time slot is fully booked
+                if (fullyBookedTimes.contains(time)) {
+                    button.isChecked = false
+                    Toast.makeText(
+                        this@MainActivity,
+                        "All machines are booked for this time. Please choose another time.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    // Deselect all other times
+                    timeButtons.forEach { (btn, _) ->
+                        btn.isChecked = btn == button
+                    }
+                    selectedTime = time
+                    Log.d("MainActivity", "Selected time: $time")
+
+                    // Clear machine selection when time changes
+                    selectedMachine = null
+
+                    // Check machine availability for the selected date/time combination
+                    if (selectedDate != null) {
+                        checkMachineAvailability()
+                    }
                 }
-                selectedTime = time
-                Log.d("MainActivity", "Selected time: $time")
             }
         }
 
@@ -210,16 +330,91 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Detergent selection
+        toggleGroupDetergent.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                when (checkedId) {
+                    R.id.btnDetergentOwn -> {
+                        // Hide brand selection
+                        layoutBrandSelection.visibility = View.GONE
+                        selectedDetergentBrand = null
+                        selectedDetergentQuantity = 0
+                        Log.d("MainActivity", "Selected: Own detergent")
+                        updateBookingSummary()
+                    }
+                    R.id.btnDetergentAddOn -> {
+                        // Show brand selection
+                        layoutBrandSelection.visibility = View.VISIBLE
+                        selectedDetergentQuantity = 1
+                        updateDetergentTotal()
+                        Log.d("MainActivity", "Selected: Add-on detergent")
+                    }
+                }
+            }
+        }
+
+        // Brand selection
+        toggleGroupBrand.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                selectedDetergentBrand = when (checkedId) {
+                    R.id.btnBrandX -> "Brand X"
+                    R.id.btnBrandY -> "Brand Y"
+                    R.id.btnBrandZ -> "Brand Z"
+                    else -> null
+                }
+                Log.d("MainActivity", "Selected brand: $selectedDetergentBrand")
+                updateDetergentTotal()
+            }
+        }
+
+        // Quantity controls
+        btnQuantityMinus.setOnClickListener {
+            if (selectedDetergentQuantity > 1) {
+                selectedDetergentQuantity--
+                tvQuantity.text = selectedDetergentQuantity.toString()
+                updateDetergentTotal()
+            }
+        }
+
+        btnQuantityPlus.setOnClickListener {
+            if (selectedDetergentQuantity < 10) { // Max 10 units
+                selectedDetergentQuantity++
+                tvQuantity.text = selectedDetergentQuantity.toString()
+                updateDetergentTotal()
+            }
+        }
+
         // Payment method
         toggleGroupPayment.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
                 selectedPaymentMethod = when (checkedId) {
-                    R.id.btnPaymentCash -> "Cash"
-                    R.id.btnPaymentEWallet -> "E-Wallet"
+                    R.id.btnPaymentCash -> {
+                        layoutPaymentProof.visibility = View.GONE
+                        paymentProofUri = null
+                        paymentProofBase64 = null
+                        "Cash"
+                    }
+                    R.id.btnPaymentEWallet -> {
+                        layoutPaymentProof.visibility = View.VISIBLE
+                        "E-Wallet"
+                    }
                     else -> null
                 }
                 Log.d("MainActivity", "Selected payment: $selectedPaymentMethod")
             }
+        }
+
+        // Upload payment proof button
+        btnUploadProof.setOnClickListener {
+            openImagePicker()
+        }
+
+        // Remove payment proof button
+        btnRemoveProof.setOnClickListener {
+            paymentProofUri = null
+            paymentProofBase64 = null
+            cardImagePreview.visibility = View.GONE
+            Log.d("MainActivity", "Payment proof removed")
         }
 
         // Book appointment button
@@ -240,6 +435,8 @@ class MainActivity : AppCompatActivity() {
             if (button.isChecked) {
                 if (!selectedServices.contains(serviceId)) {
                     selectedServices.add(serviceId)
+                    // Fetch price for this service if not cached
+                    fetchServicePrice(serviceId)
                 }
             } else {
                 selectedServices.remove(serviceId)
@@ -248,6 +445,302 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "Button ${button.text} clicked")
             Log.d("MainActivity", "Button checked state: ${button.isChecked}")
             Log.d("MainActivity", "Selected services: $selectedServices")
+
+            // Update subtotal display
+            updateBookingSummary()
+        }
+    }
+
+    private fun fetchServicePrice(serviceId: Int) {
+        // If price already cached, skip fetch
+        if (servicePrices.containsKey(serviceId)) {
+            return
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = supabaseClient.from("services")
+                    .select() {
+                        filter {
+                            eq("service_id", serviceId)
+                        }
+                    }
+
+                val json = Json { ignoreUnknownKeys = true }
+                val services = json.decodeFromString<List<Service>>(response.data)
+
+                if (services.isNotEmpty()) {
+                    servicePrices[serviceId] = services[0].price_services
+                    Log.d("MainActivity", "Cached price for service $serviceId: ₱${services[0].price_services}")
+
+                    withContext(Dispatchers.Main) {
+                        updateBookingSummary()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error fetching service price: ${e.message}", e)
+            }
+        }
+    }
+
+    private fun updateBookingSummary() {
+        // Calculate services total
+        var servicesTotal = 0.0
+        selectedServices.forEach { serviceId ->
+            servicesTotal += servicePrices[serviceId] ?: 0.0
+        }
+
+        // Calculate detergent cost
+        val detergentCost = if (selectedDetergentBrand != null) {
+            selectedDetergentQuantity * detergentPricePerUnit
+        } else {
+            0.0
+        }
+
+        // Calculate grand total
+        val grandTotal = servicesTotal + detergentCost
+
+        // Update UI
+        tvServicesTotal.text = "₱${servicesTotal.toInt()}"
+
+        if (detergentCost > 0) {
+            layoutDetergentCost.visibility = View.VISIBLE
+            tvDetergentCost.text = "₱${detergentCost.toInt()}"
+        } else {
+            layoutDetergentCost.visibility = View.GONE
+        }
+
+        tvGrandTotal.text = "₱${grandTotal.toInt()}"
+
+        Log.d("MainActivity", "Booking Summary - Services: ₱$servicesTotal, Detergent: ₱$detergentCost, Total: ₱$grandTotal")
+    }
+
+    private fun openImagePicker() {
+        val intent = android.content.Intent(android.content.Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            paymentProofUri = data.data
+
+            if (paymentProofUri != null) {
+                try {
+                    // Show image preview
+                    ivPaymentProof.setImageURI(paymentProofUri)
+                    cardImagePreview.visibility = View.VISIBLE
+
+                    // Convert to Base64 for storage
+                    val inputStream = contentResolver.openInputStream(paymentProofUri!!)
+                    val bytes = inputStream?.readBytes()
+                    inputStream?.close()
+
+                    if (bytes != null) {
+                        paymentProofBase64 = android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT)
+                        Log.d("MainActivity", "Payment proof converted to Base64 (${bytes.size} bytes)")
+
+                        Toast.makeText(this, "Payment proof uploaded successfully", Toast.LENGTH_SHORT).show()
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error loading image: ${e.message}", e)
+                    Toast.makeText(this, "Error loading image: ${e.message}", Toast.LENGTH_LONG).show()
+                    paymentProofUri = null
+                    paymentProofBase64 = null
+                }
+            }
+        }
+    }
+
+    private fun updateDetergentTotal() {
+        val total = selectedDetergentQuantity * detergentPricePerUnit
+        tvDetergentTotal.text = "Total: ₱${total.toInt()}"
+        Log.d("MainActivity", "Detergent total updated: ₱$total (${selectedDetergentBrand} × $selectedDetergentQuantity)")
+
+        // Update booking summary
+        updateBookingSummary()
+    }
+
+    private fun checkMachineAvailability() {
+        if (selectedDate == null || selectedTime == null) {
+            Log.d("MainActivity", "Date or time not selected, skipping availability check")
+            return
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                Log.d("MainActivity", "Checking machine availability for $selectedDate at $selectedTime")
+
+                // Query appointments table for bookings on the selected date and time
+                val response = supabaseClient.from("appointments")
+                    .select() {
+                        filter {
+                            eq("appointment_date", selectedDate!!)
+                            eq("appointment_time", selectedTime!!)
+                        }
+                    }
+
+                Log.d("MainActivity", "Availability query response: ${response.data}")
+
+                val json = Json { ignoreUnknownKeys = true }
+                val appointments = json.decodeFromString<List<AppointmentResponse>>(response.data)
+
+                // Extract booked machines
+                bookedMachines.clear()
+                appointments.forEach { appointment ->
+                    appointment.machine?.let { machine ->
+                        bookedMachines.add(machine)
+                        Log.d("MainActivity", "Machine booked: $machine")
+                    }
+                }
+
+                Log.d("MainActivity", "Total booked machines: ${bookedMachines.size}")
+
+                withContext(Dispatchers.Main) {
+                    updateMachineButtons()
+                }
+
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error checking machine availability: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Error checking availability: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun checkTimeSlotAvailability() {
+        if (selectedDate == null) {
+            Log.d("MainActivity", "Date not selected, skipping time slot check")
+            return
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                Log.d("MainActivity", "Checking time slot availability for $selectedDate")
+
+                // Query all appointments for the selected date
+                val response = supabaseClient.from("appointments")
+                    .select() {
+                        filter {
+                            eq("appointment_date", selectedDate!!)
+                        }
+                    }
+
+                val json = Json { ignoreUnknownKeys = true }
+                val appointments = json.decodeFromString<List<AppointmentResponse>>(response.data)
+
+                // Count bookings per time slot
+                val bookingsPerTime = mutableMapOf<String, Int>()
+                appointments.forEach { appointment ->
+                    if (appointment.machine != null) {
+                        val count = bookingsPerTime.getOrDefault(appointment.appointment_time, 0)
+                        bookingsPerTime[appointment.appointment_time] = count + 1
+                    }
+                }
+
+                // Find time slots where all 6 machines are booked
+                fullyBookedTimes.clear()
+                bookingsPerTime.forEach { (time, count) ->
+                    if (count >= 6) {
+                        fullyBookedTimes.add(time)
+                        Log.d("MainActivity", "Time slot fully booked: $time ($count/6 machines)")
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    updateTimeButtons()
+                }
+
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error checking time slot availability: ${e.message}", e)
+            }
+        }
+    }
+
+    private fun updateTimeButtons() {
+        val timeButtons = listOf(
+            btnTime9am to "09:00:00",
+            btnTime11am to "11:00:00",
+            btnTime1pm to "13:00:00",
+            btnTime3pm to "15:00:00",
+            btnTime5pm to "17:00:00",
+            btnTime7pm to "19:00:00"
+        )
+
+        timeButtons.forEach { (button, time) ->
+            val isFullyBooked = fullyBookedTimes.contains(time)
+
+            button.isEnabled = !isFullyBooked
+            button.alpha = if (isFullyBooked) 0.4f else 1.0f
+
+            // Clear selection if this time is now fully booked
+            if (isFullyBooked && selectedTime == time) {
+                button.isChecked = false
+                selectedTime = null
+                selectedMachine = null
+                bookedMachines.clear()
+                updateMachineButtons()
+            }
+
+            Log.d("MainActivity", "Time $time - Fully booked: $isFullyBooked, Enabled: ${button.isEnabled}")
+        }
+    }
+
+    private fun updateMachineButtons() {
+        val machineButtons = listOf(
+            btnMachine1 to "Machine 1",
+            btnMachine2 to "Machine 2",
+            btnMachine3 to "Machine 3",
+            btnMachine4 to "Machine 4",
+            btnMachine5 to "Machine 5",
+            btnMachine6 to "Machine 6"
+        )
+
+        machineButtons.forEach { (button, machineName) ->
+            val isBooked = bookedMachines.contains(machineName)
+
+            button.isEnabled = !isBooked
+            button.alpha = if (isBooked) 0.4f else 1.0f
+
+            // Only clear selection if the selected machine is now booked
+            if (isBooked && selectedMachine == machineName) {
+                button.isChecked = false
+                selectedMachine = null
+                Toast.makeText(
+                    this,
+                    "$machineName is no longer available for this time",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            // If machine is available and was previously selected, keep it selected
+            else if (!isBooked && selectedMachine == machineName) {
+                button.isChecked = true
+            }
+
+            Log.d("MainActivity", "$machineName - Booked: $isBooked, Enabled: ${button.isEnabled}, Selected: ${selectedMachine == machineName}")
+        }
+
+        val bookedCount = bookedMachines.size
+        if (bookedCount > 0 && bookedCount < 6) {
+            Toast.makeText(
+                this,
+                "$bookedCount machine(s) unavailable at this time",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else if (bookedCount == 6) {
+            Toast.makeText(
+                this,
+                "All machines are booked for this time. Please select another time.",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -362,6 +855,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "Selected time: $selectedTime")
         Log.d("MainActivity", "Selected delivery: $selectedDeliveryMethod")
         Log.d("MainActivity", "Selected payment: $selectedPaymentMethod")
+        Log.d("MainActivity", "Detergent quantity: $selectedDetergentQuantity")
 
         if (!isCustomerDataLoaded || customerId == null) {
             Toast.makeText(this, "Customer data not loaded. Please wait or restart the app.", Toast.LENGTH_LONG).show()
@@ -398,6 +892,12 @@ class MainActivity : AppCompatActivity() {
             return false
         }
 
+        // Validate E-Wallet payment proof
+        if (selectedPaymentMethod == "E-Wallet" && paymentProofBase64 == null) {
+            Toast.makeText(this, "Please upload payment proof for E-Wallet payment", Toast.LENGTH_LONG).show()
+            return false
+        }
+
         Log.d("MainActivity", "All validations passed!")
         return true
     }
@@ -413,17 +913,27 @@ class MainActivity : AppCompatActivity() {
                 // First, check if appointments table has delivery_method column
                 // If not, we'll add it to the database
 
-                // Create appointment
+                // Create appointment with detergent add-on
+                val detergentOption = if (selectedDetergentBrand != null) "store" else "own"
+                val detergentCharge = if (selectedDetergentBrand != null) {
+                    selectedDetergentQuantity * detergentPricePerUnit
+                } else {
+                    0.0
+                }
+
                 val appointmentData = AppointmentInsert(
                     customer_id = customerId!!,
                     appointment_date = selectedDate!!,
                     appointment_time = selectedTime!!,
                     status = "pending",
                     delivery_method = selectedDeliveryMethod,
-                    machine = selectedMachine
+                    machine = selectedMachine,
+                    detergent_option = detergentOption,
+                    detergent_charge = detergentCharge
                 )
 
                 Log.d("MainActivity", "Inserting appointment: $appointmentData")
+                Log.d("MainActivity", "Detergent: $detergentOption, Brand: $selectedDetergentBrand, Quantity: $selectedDetergentQuantity, Charge: ₱$detergentCharge")
 
                 val appointmentResponse = supabaseClient.from("appointments")
                     .insert(appointmentData) {
@@ -459,16 +969,18 @@ class MainActivity : AppCompatActivity() {
                         val service = services[0]
 
                         // Insert into appointment_services
+                        // FLAT RATE PRICING: Each service costs a fixed amount (up to 8kg max)
+                        // price_services is the flat rate per service
                         val appointmentServiceData = AppointmentServiceInsert(
                             appointment_id = appointmentId,
                             service_id = serviceId,
-                            applied_price = service.price_per_kilo.toDouble()
+                            applied_price = service.price_services  // Flat rate (e.g., ₱50 for up to 8kg)
                         )
 
                         supabaseClient.from("appointment_services")
                             .insert(appointmentServiceData)
 
-                        Log.d("MainActivity", "Added service: ${service.service_name}")
+                        Log.d("MainActivity", "Added service: ${service.service_name} at flat rate ₱${service.price_services}")
                     }
                 }
 
@@ -477,13 +989,15 @@ class MainActivity : AppCompatActivity() {
                     appointment_id = appointmentId,
                     payment_method = selectedPaymentMethod!!,
                     payment_status = "pending",
-                    amount = 0.0 // Will be updated after weighing
+                    amount = 0.0, // Will be updated after weighing
+                    proof_image = paymentProofBase64  // Include payment proof for E-Wallet
                 )
 
                 supabaseClient.from("payments")
                     .insert(paymentData)
 
                 Log.d("MainActivity", "Payment record created")
+                Log.d("MainActivity", "Payment proof included: ${paymentProofBase64 != null}")
 
                 withContext(Dispatchers.Main) {
                     btnBookAppointment.isEnabled = true
@@ -495,8 +1009,13 @@ class MainActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
 
-                    // Reset form
-                    resetForm()
+                    // Redirect to AppointmentsActivity to view booking
+                    val intent = android.content.Intent(this@MainActivity, AppointmentsActivity::class.java)
+                    intent.putExtra("USER_ID", userId)
+                    startActivity(intent)
+
+                    // Optionally finish this activity so user can't go back
+                    finish()
                 }
 
             } catch (e: Exception) {
@@ -562,5 +1081,23 @@ class MainActivity : AppCompatActivity() {
         selectedPaymentMethod = null
         toggleGroupDelivery.clearChecked()
         toggleGroupPayment.clearChecked()
+
+        // Reset payment proof
+        paymentProofUri = null
+        paymentProofBase64 = null
+        layoutPaymentProof.visibility = View.GONE
+        cardImagePreview.visibility = View.GONE
+
+        // Reset detergent add-on
+        selectedDetergentBrand = null
+        selectedDetergentQuantity = 1
+        toggleGroupDetergent.clearChecked()
+        toggleGroupBrand.clearChecked()
+        layoutBrandSelection.visibility = View.GONE
+        tvQuantity.text = "1"
+        tvDetergentTotal.text = "Total: ₱30"
+
+        // Reset booking summary
+        updateBookingSummary()
     }
 }

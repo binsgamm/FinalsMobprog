@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginBottom="12dp"
     app:cardBackgroundColor="#fff"
     app:cardCornerRadius="16dp"
     app:cardElevation="4dp">
@@ -14,114 +14,160 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <RelativeLayout
+        <!-- Header with Status -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_marginBottom="12dp">
 
             <TextView
-                android:id="@+id/tvServiceType"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvAppointmentId"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Wash &amp; Fold"
+                android:layout_weight="1"
+                android:text="Appointment #123"
                 android:textColor="#333"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:background="@drawable/bg_status_tag"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:text="@string/status_pending"
-                android:textColor="#2d58a9"
+                android:text="Pending"
+                android:textColor="#fff"
                 android:textSize="12sp"
-                android:textStyle="bold" />
-        </RelativeLayout>
+                android:textStyle="bold"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:background="@drawable/bg_status_pending" />
+        </LinearLayout>
 
+        <!-- Date & Time -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📅 "
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvDateTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="January 27, 2026 at 9:00 AM"
+                android:textColor="#666"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Machine -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🏭 "
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvMachine"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Machine 1"
+                android:textColor="#666"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Services -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🧺 "
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvServices"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Wash and Fold, Ironing"
+                android:textColor="#666"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Delivery Method -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🚚 "
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvDelivery"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Pickup"
+                android:textColor="#666"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginBottom="12dp"
-            android:background="#eee" />
+            android:background="#E0E0E0"
+            android:layout_marginVertical="8dp" />
 
+        <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="4dp">
-            <TextView
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:text="@string/label_date"
-                android:textColor="#777"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/tvAppointmentDate"
+            android:gravity="end">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewDetails"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Jan 25, 2026 - 09:00 AM"
-                android:textColor="#333" />
-        </LinearLayout>
+                android:text="View Details"
+                android:textColor="#2d58a9"
+                android:layout_marginEnd="8dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="4dp">
-            <TextView
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:text="@string/label_machine"
-                android:textColor="#777"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/tvMachineInfo"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancel"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Machine #1"
-                android:textColor="#333" />
+                android:text="Cancel"
+                android:textColor="#D32F2F"
+                app:strokeColor="#D32F2F"
+                app:strokeWidth="2dp" />
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="4dp">
-            <TextView
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:text="@string/delivery_method"
-                android:textColor="#777"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/tvDeliveryMethod"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pickup"
-                android:textColor="#333" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:text="@string/payment_method"
-                android:textColor="#777"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/tvPaymentMethod"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cash"
-                android:textColor="#333" />
-        </LinearLayout>
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>

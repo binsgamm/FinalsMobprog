@@ -36,7 +36,9 @@ data class AppointmentInsert(
     val appointment_time: String,
     val status: String = "pending",
     val delivery_method: String? = null,
-    val machine: String? = null
+    val machine: String? = null,
+    val detergent_option: String = "own", // "own" or "store"
+    val detergent_charge: Double = 0.0
 )
 
 @Serializable
@@ -48,7 +50,16 @@ data class AppointmentResponse(
     val status: String,
     val delivery_method: String? = null,
     val machine: String? = null,
-    val total_weight: Double? = null
+    val total_weight: Double? = null,
+    val detergent_option: String? = null,
+    val detergent_charge: Double? = null
+)
+
+// Full appointment details with services
+data class AppointmentWithDetails(
+    val appointment: AppointmentResponse,
+    val services: List<String>,
+    val paymentMethod: String?
 )
 
 // Service data class
@@ -56,7 +67,7 @@ data class AppointmentResponse(
 data class Service(
     val service_id: Int,
     val service_name: String,
-    val price_per_kilo: Double,  // Changed from String to Double
+    val price_services: Double,  // Flat rate price for service (up to 8kg)
     val description: String? = null
 )
 
@@ -83,7 +94,11 @@ data class PaymentInsert(
     val appointment_id: Int,
     val payment_method: String,
     val payment_status: String = "pending",
-    val amount: Double
+    val amount: Double,
+    val down_payment: Double = 0.0,
+    val remaining_balance: Double = 0.0,
+    val is_down_payment: Boolean = false,
+    val proof_image: String? = null  // Base64 encoded image for E-Wallet payments
 )
 
 @Serializable
@@ -107,4 +122,44 @@ data class UserData(
     val phone: String,
     val email: String,
     val password: String
+)
+
+// Detergent pricing
+@Serializable
+data class DetergentPricing(
+    val id: Int? = null,
+    val detergent_name: String,
+    val price_per_load: Double,
+    val is_active: Boolean = true
+)
+
+// Pricing rules for weight-based charges
+@Serializable
+data class PricingRule(
+    val id: Int? = null,
+    val rule_name: String,
+    val weight_threshold_kg: Double,
+    val additional_price_per_kilo: Double,
+    val is_active: Boolean = true
+)
+
+// Payment configuration
+@Serializable
+data class PaymentConfig(
+    val id: Int? = null,
+    val payment_type: String,
+    val requires_down_payment: Boolean,
+    val down_payment_percentage: Double,
+    val min_down_payment_amount: Double,
+    val is_active: Boolean = true
+)
+
+// Cost calculation result
+@Serializable
+data class CostCalculation(
+    val base_cost: Double,
+    val weight_surcharge: Double,
+    val detergent_charge: Double,
+    val total_cost: Double,
+    val required_down_payment: Double
 )
