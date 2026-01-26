@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Calendar Theme - Blue App Color (#2d58a9) -->
+    <style name="CalendarTheme" parent="android:Theme.Material.Light">
+        <item name="android:colorAccent">@color/calendar_accent</item>
+        <item name="android:colorPrimary">@color/calendar_primary</item>
+    </style>
+
+    <!-- Calendar Date Text -->
+    <style name="CalendarDateTextAppearance" parent="android:TextAppearance.Material.Body1">
+        <item name="android:textColor">@color/calendar_date_text</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- Calendar Week Day Text -->
+    <style name="CalendarWeekDayTextAppearance" parent="android:TextAppearance.Material.Body2">
+        <item name="android:textColor">@color/calendar_weekday_text</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>
