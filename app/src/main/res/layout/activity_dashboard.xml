@@ -137,21 +137,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
-                                android:orientation="horizontal">
-
-                                <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:src="@android:drawable/ic_menu_search"
-                                    app:tint="#2d58a9" />
-
-                                <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:layout_marginStart="16dp"
-                                    android:src="@android:drawable/ic_popup_reminder"
-                                    app:tint="#2d58a9" />
-                            </LinearLayout>
+                                android:orientation="horizontal"/>
                         </RelativeLayout>
 
                         <TextView
@@ -229,26 +215,34 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvSeeAllOrders"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:text="See All"
                         android:textColor="#eee"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:clickable="true"
+                        android:focusable="true" />
                 </RelativeLayout>
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/cardNearestAppointment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="#fff"
                     app:cardCornerRadius="24dp"
-                    app:cardElevation="4dp">
+                    app:cardElevation="4dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <LinearLayout
+                        android:id="@+id/layoutEmptyAppointments"
                         android:layout_width="match_parent"
                         android:layout_height="140dp"
                         android:gravity="center"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:visibility="visible">
 
                         <ImageView
                             android:layout_width="48dp"
@@ -262,6 +256,85 @@
                             android:layout_marginTop="8dp"
                             android:text="No Upcoming Appointments"
                             android:textColor="#AAA" />
+                    </LinearLayout>
+
+                    <!-- Appointment Details (Hidden by default) -->
+                    <LinearLayout
+                        android:id="@+id/layoutAppointmentDetails"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Next Appointment"
+                                android:textColor="#333"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvAppointmentStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Pending"
+                                android:textColor="#fff"
+                                android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="4dp"
+                                android:background="@drawable/bg_status_pending" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="📅 "
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/tvAppointmentDate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="January 27, 2026 at 9:00 AM"
+                                android:textColor="#666"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🧺 "
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/tvAppointmentServices"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Wash and Fold, Ironing"
+                                android:textColor="#666"
+                                android:textSize="14sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -281,12 +354,15 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvSeeAllServices"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:text="See All"
                         android:textColor="#eee"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:clickable="true"
+                        android:focusable="true" />
                 </RelativeLayout>
 
                 <GridLayout
