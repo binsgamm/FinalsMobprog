@@ -48,7 +48,7 @@
             android:layout_marginBottom="12dp"
             android:background="#eee" />
 
-        <!-- User Info (Important for Admin) -->
+        <!-- User Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -106,10 +106,35 @@
                 android:textColor="#333" />
         </LinearLayout>
 
+        <!-- Proof of Payment Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Proof of Payment:"
+            android:textColor="#777"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp">
+            <ImageView
+                android:id="@+id/ivProofOfPayment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#F5F5F5"
+                android:scaleType="centerInside"
+                android:src="@android:drawable/ic_menu_gallery" />
+        </androidx.cardview.widget.CardView>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="12dp"
             android:background="#eee" />
 
@@ -122,31 +147,35 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <LinearLayout
+        <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:columnCount="2"
+            android:alignmentMode="alignMargins"
+            android:columnOrderPreserved="false">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSetPending"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
                 android:text="Pending"
+                android:textAllCaps="false"
                 android:textSize="12sp"
                 app:cornerRadius="8dp"
                 app:strokeColor="#ccc" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSetConfirmed"
+                android:id="@+id/btnSetInProgress"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:text="Confirm"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                android:text="In Progress"
+                android:textAllCaps="false"
                 android:textSize="12sp"
                 app:cornerRadius="8dp"
                 app:strokeColor="#ccc" />
@@ -156,14 +185,28 @@
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
                 android:backgroundTint="#4CAF50"
-                android:text="Done"
+                android:text="Completed"
+                android:textAllCaps="false"
                 android:textSize="12sp"
                 app:cornerRadius="8dp" />
 
-        </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSetCancelled"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                android:backgroundTint="#F44336"
+                android:text="Cancelled"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:cornerRadius="8dp" />
+
+        </GridLayout>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

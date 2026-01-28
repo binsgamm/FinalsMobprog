@@ -22,48 +22,54 @@
         <!-- Navbar -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="wrap_content"
+            android:minHeight="64dp"
             app:cardBackgroundColor="#CCFFFFFF"
             app:cardElevation="0dp">
 
-            <RelativeLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingHorizontal="16dp">
+                android:layout_height="64dp"
+                android:paddingHorizontal="8dp">
+
+                <TextView
+                    android:id="@+id/tvLogo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Labada"
+                    android:textColor="#11264d"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/llNavButtons"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <LinearLayout
+                    android:id="@+id/llNavButtons"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="Labada"
-                        android:textColor="#11264d"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentEnd="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnBook"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:paddingHorizontal="4dp"
                         android:text="Book"
                         android:textAllCaps="false"
                         android:textColor="#11264d"
                         android:textSize="11sp"
                         app:icon="@android:drawable/ic_menu_add"
+                        app:iconPadding="4dp"
                         app:iconTint="#11264d" />
 
                     <com.google.android.material.button.MaterialButton
@@ -71,11 +77,14 @@
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:paddingHorizontal="4dp"
                         android:text="Appointments"
                         android:textAllCaps="false"
                         android:textColor="#11264d"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         app:icon="@android:drawable/ic_menu_my_calendar"
+                        app:iconPadding="4dp"
                         app:iconTint="#11264d" />
 
                     <com.google.android.material.button.MaterialButton
@@ -83,14 +92,17 @@
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:paddingHorizontal="4dp"
                         android:text="Profile"
                         android:textAllCaps="false"
                         android:textColor="#11264d"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         app:icon="@android:drawable/ic_menu_view"
+                        app:iconPadding="4dp"
                         app:iconTint="#11264d" />
                 </LinearLayout>
-            </RelativeLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
         <ScrollView
@@ -167,7 +179,7 @@
                                 <ImageView
                                     android:layout_width="32dp"
                                     android:layout_height="32dp"
-                                    android:background="@drawable/bg_status_tag"
+                                    android:background="@drawable/bg_circle_icon"
                                     android:padding="6dp"
                                     android:src="@android:drawable/ic_menu_mylocation"
                                     app:tint="#2d58a9" />
