@@ -178,7 +178,7 @@ class MainActivity : AppCompatActivity() {
         btnMethodPickup = findViewById(R.id.btnMethodPickup)
 
         toggleGroupPayment = findViewById(R.id.toggleGroupPayment)
-            btnPaymentCash = findViewById(R.id.btnPaymentCash)
+        btnPaymentCash = findViewById(R.id.btnPaymentCash)
         btnPaymentEWallet = findViewById(R.id.btnPaymentEWallet)
 
         // Detergent selection
@@ -353,6 +353,46 @@ class MainActivity : AppCompatActivity() {
 
         timeButtons.forEach { (button, time) ->
             button.setOnClickListener {
+                // Check if selected date is today
+                val isToday = selectedDate == SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    .format(Calendar.getInstance().time)
+
+                // Check if this time has passed (if today)
+                var isPastTime = false
+                if (isToday) {
+                    try {
+                        val currentTime = Calendar.getInstance()
+                        val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                        val slotTime = timeFormat.parse(time)
+
+                        if (slotTime != null) {
+                            val slotCalendar = Calendar.getInstance()
+                            slotCalendar.time = slotTime
+
+                            val slotHour = slotCalendar.get(Calendar.HOUR_OF_DAY)
+                            val slotMinute = slotCalendar.get(Calendar.MINUTE)
+                            val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
+                            val currentMinute = currentTime.get(Calendar.MINUTE)
+
+                            isPastTime = (slotHour < currentHour) ||
+                                    (slotHour == currentHour && slotMinute <= currentMinute)
+                        }
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "Error checking time: ${e.message}")
+                    }
+                }
+
+                // Prevent selection if time has passed
+                if (isPastTime) {
+                    button.isChecked = false
+                    Toast.makeText(
+                        this@MainActivity,
+                        "This time has already passed. Please choose a future time.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@setOnClickListener
+                }
+
                 // Check if this time slot is fully booked
                 if (fullyBookedTimes.contains(time)) {
                     button.isChecked = false
@@ -740,28 +780,73 @@ class MainActivity : AppCompatActivity() {
             btnTime7pm to "19:00:00"
         )
 
+        // Check if selected date is today
+        val isToday = selectedDate == SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            .format(Calendar.getInstance().time)
+
+        val currentTime = if (isToday) {
+            Calendar.getInstance()
+        } else null
+
         timeButtons.forEach { (button, time) ->
             val isFullyBooked = fullyBookedTimes.contains(time)
 
-            // Visual state - gray out fully booked times
-            button.isEnabled = !isFullyBooked
-            button.alpha = if (isFullyBooked) 0.4f else 1.0f
+            // Check if this time has passed today
+            var isPastTime = false
+            if (isToday && currentTime != null) {
+                try {
+                    val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                    val slotTime = timeFormat.parse(time)
+
+                    if (slotTime != null) {
+                        val slotCalendar = Calendar.getInstance()
+                        slotCalendar.time = slotTime
+
+                        // Compare hours and minutes
+                        val slotHour = slotCalendar.get(Calendar.HOUR_OF_DAY)
+                        val slotMinute = slotCalendar.get(Calendar.MINUTE)
+                        val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
+                        val currentMinute = currentTime.get(Calendar.MINUTE)
+
+                        isPastTime = (slotHour < currentHour) ||
+                                (slotHour == currentHour && slotMinute <= currentMinute)
+
+                        if (isPastTime) {
+                            Log.d("MainActivity", "Time $time is in the past (current: $currentHour:$currentMinute, slot: $slotHour:$slotMinute)")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error parsing time: ${e.message}")
+                }
+            }
+
+            // Disable if either fully booked OR past time
+            val isDisabled = isFullyBooked || isPastTime
+
+            // Visual state - gray out disabled times
+            button.isEnabled = !isDisabled
+            button.alpha = if (isDisabled) 0.4f else 1.0f
 
             // Handle selection state
-            if (isFullyBooked && selectedTime == time) {
-                // This time is fully booked and was selected - clear it
+            if (isDisabled && selectedTime == time) {
+                // This time is disabled and was selected - clear it
                 button.isChecked = false
                 selectedTime = null
                 selectedMachine = null
                 bookedMachines.clear()
-                Log.d("MainActivity", "Time $time is fully booked - cleared selection")
-            } else if (!isFullyBooked && selectedTime == time) {
+
+                if (isPastTime) {
+                    Log.d("MainActivity", "Time $time has passed - cleared selection")
+                } else {
+                    Log.d("MainActivity", "Time $time is fully booked - cleared selection")
+                }
+            } else if (!isDisabled && selectedTime == time) {
                 // This time is available and is selected - keep it checked
                 button.isChecked = true
                 Log.d("MainActivity", "Time $time still selected and available")
             }
 
-            Log.d("MainActivity", "Time $time - Fully booked: $isFullyBooked, Selected: ${selectedTime == time}")
+            Log.d("MainActivity", "Time $time - Fully booked: $isFullyBooked, Past: $isPastTime, Selected: ${selectedTime == time}")
         }
     }
 
