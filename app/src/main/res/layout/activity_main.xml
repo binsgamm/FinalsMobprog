@@ -82,7 +82,7 @@
                         android:textSize="22sp"
                         android:textStyle="bold" />
 
-                    <!-- SERVICES (Express removed - only 3 services) -->
+                    <!-- SERVICES -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -640,6 +640,45 @@
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
+                    <!-- E-WALLET TRANSACTION DETAILS (Initially Hidden) -->
+                    <LinearLayout
+                        android:id="@+id/layoutEWalletDetails"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:layout_marginTop="8dp">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilEWalletName"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:hint="Account Name">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etEWalletName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textPersonName" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilEWalletNumber"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Account Number">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etEWalletNumber"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="phone" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
                     <!-- E-WALLET PAYMENT PROOF (Initially Hidden) -->
                     <LinearLayout
                         android:id="@+id/layoutPaymentProof"
@@ -746,8 +785,7 @@
                                 android:text="Booking Summary"
                                 android:textColor="#333"
                                 android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:layout_marginBottom="12dp" />
+                                android:textStyle="bold"                                 android:layout_marginBottom="12dp" />
 
                             <!-- Services Cost -->
                             <LinearLayout
