@@ -2,6 +2,17 @@ package com.example.myapplication
 
 import kotlinx.serialization.Serializable
 
+// Admin data class
+@Serializable
+data class Admin(
+    val admin_id: Int,
+    val user_id: String,
+    val f_name: String,
+    val l_name: String,
+    val email: String? = null,
+    val created_at: String? = null
+)
+
 // Customer data class with all fields
 @Serializable
 data class Customer(

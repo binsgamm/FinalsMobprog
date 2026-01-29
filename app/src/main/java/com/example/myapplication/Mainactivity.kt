@@ -26,29 +26,19 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    // Service Buttons
+    // Service Buttons (Express removed)
     private lateinit var btnWashFold: MaterialButton
     private lateinit var btnDryCleaning: MaterialButton
     private lateinit var btnIroning: MaterialButton
-    private lateinit var btnExpress: MaterialButton
-
-    // Machine Buttons
-    private lateinit var btnMachine1: MaterialButton
-    private lateinit var btnMachine2: MaterialButton
-    private lateinit var btnMachine3: MaterialButton
-    private lateinit var btnMachine4: MaterialButton
-    private lateinit var btnMachine5: MaterialButton
-    private lateinit var btnMachine6: MaterialButton
 
     // Calendar and Time
     // Date selection
     private lateinit var btnSelectDate: MaterialButton
     private lateinit var tvSelectedDate: TextView
     private lateinit var btnTime9am: MaterialButton
-    private lateinit var btnTime11am: MaterialButton
-    private lateinit var btnTime1pm: MaterialButton
-    private lateinit var btnTime3pm: MaterialButton
-    private lateinit var btnTime5pm: MaterialButton
+    private lateinit var btnTime1130am: MaterialButton
+    private lateinit var btnTime2pm: MaterialButton
+    private lateinit var btnTime430pm: MaterialButton
     private lateinit var btnTime7pm: MaterialButton
 
     // Delivery & Payment
@@ -92,7 +82,6 @@ class MainActivity : AppCompatActivity() {
 
     // Selected values
     private val selectedServices = mutableListOf<Int>() // Service IDs
-    private var selectedMachine: String? = null
     private var selectedDate: String? = null
     private var selectedTime: String? = null
     private var selectedDeliveryMethod: String? = null
@@ -102,9 +91,6 @@ class MainActivity : AppCompatActivity() {
     private var selectedDetergentBrand: String? = null  // "Brand X", "Brand Y", or "Brand Z"
     private var selectedDetergentQuantity: Int = 1  // Quantity of detergent
     private val detergentPricePerUnit: Double = 30.0  // ₱30 per unit
-
-    // Machine availability tracking
-    private val bookedMachines = mutableSetOf<String>()  // Set of booked machines for selected date/time
 
     // Service pricing cache
     private val servicePrices = mutableMapOf<Int, Double>()  // service_id to price mapping
@@ -120,6 +106,9 @@ class MainActivity : AppCompatActivity() {
     private var userId: String? = null
     private var customerId: Int? = null
     private var isCustomerDataLoaded = false
+
+    // Maximum bookings per time slot (6 machines available)
+    private val MAX_BOOKINGS_PER_SLOT = 6
 
     // Supabase client
     private val supabaseClient: SupabaseClient by lazy {
@@ -148,28 +137,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeViews() {
-        // Service buttons
+        // Service buttons (Express removed)
         btnWashFold = findViewById(R.id.btnWashFold)
         btnDryCleaning = findViewById(R.id.btnDryCleaning)
         btnIroning = findViewById(R.id.btnIroning)
-        btnExpress = findViewById(R.id.btnExpress)
-
-        // Machine buttons
-        btnMachine1 = findViewById(R.id.btnMachine1)
-        btnMachine2 = findViewById(R.id.btnMachine2)
-        btnMachine3 = findViewById(R.id.btnMachine3)
-        btnMachine4 = findViewById(R.id.btnMachine4)
-        btnMachine5 = findViewById(R.id.btnMachine5)
-        btnMachine6 = findViewById(R.id.btnMachine6)
 
         // Date selection and time
         btnSelectDate = findViewById(R.id.btnSelectDate)
         tvSelectedDate = findViewById(R.id.tvSelectedDate)
         btnTime9am = findViewById(R.id.btnTime9am)
-        btnTime11am = findViewById(R.id.btnTime11am)
-        btnTime1pm = findViewById(R.id.btnTime1pm)
-        btnTime3pm = findViewById(R.id.btnTime3pm)
-        btnTime5pm = findViewById(R.id.btnTime5pm)
+        btnTime1130am = findViewById(R.id.btnTime1130am)
+        btnTime2pm = findViewById(R.id.btnTime2pm)
+        btnTime430pm = findViewById(R.id.btnTime430pm)
         btnTime7pm = findViewById(R.id.btnTime7pm)
 
         // Delivery & Payment
@@ -219,73 +198,12 @@ class MainActivity : AppCompatActivity() {
     private fun setupListeners() {
         Log.d("MainActivity", "=== SETTING UP LISTENERS ===")
 
-        // Service buttons - multiple selection
+        // Service buttons - multiple selection (Express removed, only 3 services now)
         Log.d("MainActivity", "Setting up service buttons...")
-        setupServiceButton(btnWashFold, 1) // Assuming service_id 1
-        setupServiceButton(btnDryCleaning, 2) // Assuming service_id 2
-        setupServiceButton(btnIroning, 3) // Assuming service_id 3
-        setupServiceButton(btnExpress, 4) // Assuming service_id 4
-        Log.d("MainActivity", "Service buttons set up complete")
-
-        // Machine buttons - single selection
-        val machineButtons = listOf(
-            btnMachine1 to "Machine 1",
-            btnMachine2 to "Machine 2",
-            btnMachine3 to "Machine 3",
-            btnMachine4 to "Machine 4",
-            btnMachine5 to "Machine 5",
-            btnMachine6 to "Machine 6"
-        )
-
-        // Initially disable all machines until date and time are selected
-        machineButtons.forEach { (button, _) ->
-            button.isEnabled = false
-            button.alpha = 0.4f
-        }
-
-        machineButtons.forEach { (button, machineName) ->
-            button.setOnClickListener {
-                // Check if date and time are selected first
-                if (selectedDate == null) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Please select a date first",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    button.isChecked = false
-                    return@setOnClickListener
-                }
-
-                if (selectedTime == null) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Please select a time first",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    button.isChecked = false
-                    return@setOnClickListener
-                }
-
-                // Check if this machine is booked
-                if (bookedMachines.contains(machineName)) {
-                    // Machine is booked, prevent selection
-                    button.isChecked = false
-                    Toast.makeText(
-                        this@MainActivity,
-                        "$machineName is already booked for this time",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    // Machine is available, allow selection
-                    // Deselect all other machines
-                    machineButtons.forEach { (btn, _) ->
-                        btn.isChecked = btn == button
-                    }
-                    selectedMachine = machineName
-                    Log.d("MainActivity", "Selected machine: $machineName")
-                }
-            }
-        }
+        setupServiceButton(btnWashFold, 1) // service_id 1
+        setupServiceButton(btnDryCleaning, 2) // service_id 2
+        setupServiceButton(btnIroning, 3) // service_id 3
+        Log.d("MainActivity", "Service buttons set up complete (Express removed)")
 
         // Date Picker Button
         btnSelectDate.setOnClickListener {
@@ -326,28 +244,17 @@ class MainActivity : AppCompatActivity() {
 
                 // Check which time slots are fully booked for this date
                 checkTimeSlotAvailability()
-
-                // If a time is already selected, check machine availability for new date
-                if (selectedTime != null) {
-                    Log.d("MainActivity", "Date changed with time already selected, refreshing machines...")
-                    checkMachineAvailability()
-                } else {
-                    // Clear machine availability until time is selected
-                    bookedMachines.clear()
-                    updateMachineButtons()
-                }
             }
 
             datePicker.show(supportFragmentManager, "DATE_PICKER")
         }
 
-        // Time buttons - single selection
+        // Time buttons - single selection with 2.5-hour intervals
         val timeButtons = listOf(
             btnTime9am to "09:00:00",
-            btnTime11am to "11:00:00",
-            btnTime1pm to "13:00:00",
-            btnTime3pm to "15:00:00",
-            btnTime5pm to "17:00:00",
+            btnTime1130am to "11:30:00",
+            btnTime2pm to "14:00:00",
+            btnTime430pm to "16:30:00",
             btnTime7pm to "19:00:00"
         )
 
@@ -398,7 +305,7 @@ class MainActivity : AppCompatActivity() {
                     button.isChecked = false
                     Toast.makeText(
                         this@MainActivity,
-                        "All machines are booked for this time. Please choose another time.",
+                        "This time slot is fully booked (6/6 machines occupied). Please choose another time.",
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
@@ -408,17 +315,6 @@ class MainActivity : AppCompatActivity() {
                     }
                     selectedTime = time
                     Log.d("MainActivity", "Selected time: $time")
-
-                    // Check machine availability for the selected date/time combination
-                    if (selectedDate != null) {
-                        checkMachineAvailability()
-                    } else {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Please select a date first",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
                 }
             }
         }
@@ -669,58 +565,6 @@ class MainActivity : AppCompatActivity() {
         updateBookingSummary()
     }
 
-    private fun checkMachineAvailability() {
-        if (selectedDate == null || selectedTime == null) {
-            Log.d("MainActivity", "Date or time not selected, skipping availability check")
-            return
-        }
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                Log.d("MainActivity", "Checking machine availability for $selectedDate at $selectedTime")
-
-                // Query appointments table for bookings on the selected date and time
-                val response = supabaseClient.from("appointments")
-                    .select() {
-                        filter {
-                            eq("appointment_date", selectedDate!!)
-                            eq("appointment_time", selectedTime!!)
-                        }
-                    }
-
-                Log.d("MainActivity", "Availability query response: ${response.data}")
-
-                val json = Json { ignoreUnknownKeys = true }
-                val appointments = json.decodeFromString<List<AppointmentResponse>>(response.data)
-
-                // Extract booked machines
-                bookedMachines.clear()
-                appointments.forEach { appointment ->
-                    appointment.machine?.let { machine ->
-                        bookedMachines.add(machine)
-                        Log.d("MainActivity", "Machine booked: $machine")
-                    }
-                }
-
-                Log.d("MainActivity", "Total booked machines: ${bookedMachines.size}")
-
-                withContext(Dispatchers.Main) {
-                    updateMachineButtons()
-                }
-
-            } catch (e: Exception) {
-                Log.e("MainActivity", "Error checking machine availability: ${e.message}", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Error checking availability: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }
-
     private fun checkTimeSlotAvailability() {
         if (selectedDate == null) {
             Log.d("MainActivity", "Date not selected, skipping time slot check")
@@ -745,7 +589,8 @@ class MainActivity : AppCompatActivity() {
                 // Count bookings per time slot
                 val bookingsPerTime = mutableMapOf<String, Int>()
                 appointments.forEach { appointment ->
-                    if (appointment.machine != null) {
+                    // Count all non-cancelled appointments
+                    if (appointment.status.lowercase() != "cancelled") {
                         val count = bookingsPerTime.getOrDefault(appointment.appointment_time, 0)
                         bookingsPerTime[appointment.appointment_time] = count + 1
                     }
@@ -754,9 +599,11 @@ class MainActivity : AppCompatActivity() {
                 // Find time slots where all 6 machines are booked
                 fullyBookedTimes.clear()
                 bookingsPerTime.forEach { (time, count) ->
-                    if (count >= 6) {
+                    if (count >= MAX_BOOKINGS_PER_SLOT) {
                         fullyBookedTimes.add(time)
-                        Log.d("MainActivity", "Time slot fully booked: $time ($count/6 machines)")
+                        Log.d("MainActivity", "Time slot fully booked: $time ($count/$MAX_BOOKINGS_PER_SLOT slots)")
+                    } else {
+                        Log.d("MainActivity", "Time slot available: $time ($count/$MAX_BOOKINGS_PER_SLOT slots)")
                     }
                 }
 
@@ -773,10 +620,9 @@ class MainActivity : AppCompatActivity() {
     private fun updateTimeButtons() {
         val timeButtons = listOf(
             btnTime9am to "09:00:00",
-            btnTime11am to "11:00:00",
-            btnTime1pm to "13:00:00",
-            btnTime3pm to "15:00:00",
-            btnTime5pm to "17:00:00",
+            btnTime1130am to "11:30:00",
+            btnTime2pm to "14:00:00",
+            btnTime430pm to "16:30:00",
             btnTime7pm to "19:00:00"
         )
 
@@ -832,8 +678,6 @@ class MainActivity : AppCompatActivity() {
                 // This time is disabled and was selected - clear it
                 button.isChecked = false
                 selectedTime = null
-                selectedMachine = null
-                bookedMachines.clear()
 
                 if (isPastTime) {
                     Log.d("MainActivity", "Time $time has passed - cleared selection")
@@ -847,68 +691,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             Log.d("MainActivity", "Time $time - Fully booked: $isFullyBooked, Past: $isPastTime, Selected: ${selectedTime == time}")
-        }
-    }
-
-    private fun updateMachineButtons() {
-        val machineButtons = listOf(
-            btnMachine1 to "Machine 1",
-            btnMachine2 to "Machine 2",
-            btnMachine3 to "Machine 3",
-            btnMachine4 to "Machine 4",
-            btnMachine5 to "Machine 5",
-            btnMachine6 to "Machine 6"
-        )
-
-        // Only update if date and time are selected
-        if (selectedDate == null || selectedTime == null) {
-            // Disable all machines if date/time not selected
-            machineButtons.forEach { (button, _) ->
-                button.isEnabled = false
-                button.alpha = 0.4f
-                button.isChecked = false
-            }
-            selectedMachine = null
-            Log.d("MainActivity", "Machines disabled - no date/time selected")
-            return
-        }
-
-        // Enable/disable based on availability
-        machineButtons.forEach { (button, machineName) ->
-            val isBooked = bookedMachines.contains(machineName)
-
-            // Visual state - gray out booked machines, enable available ones
-            button.isEnabled = !isBooked
-            button.alpha = if (isBooked) 0.4f else 1.0f
-
-            // Handle selection state
-            if (isBooked) {
-                // If this booked machine was selected, clear the selection
-                if (selectedMachine == machineName) {
-                    button.isChecked = false
-                    selectedMachine = null
-                    Log.d("MainActivity", "$machineName was selected but is now booked - cleared selection")
-                }
-            } else {
-                // If this available machine is the selected one, keep it checked
-                if (selectedMachine == machineName) {
-                    button.isChecked = true
-                    Log.d("MainActivity", "$machineName still selected and available")
-                }
-            }
-
-            Log.d("MainActivity", "$machineName - Booked: $isBooked, Enabled: ${button.isEnabled}, Selected: ${selectedMachine == machineName}")
-        }
-
-        val bookedCount = bookedMachines.size
-        if (bookedCount > 0 && bookedCount < 6) {
-            Log.d("MainActivity", "$bookedCount machine(s) unavailable at this time")
-        } else if (bookedCount == 6) {
-            Toast.makeText(
-                this,
-                "All machines are booked for this time. Please select another time.",
-                Toast.LENGTH_LONG
-            ).show()
         }
     }
 
@@ -1018,7 +800,6 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "Customer data loaded: $isCustomerDataLoaded")
         Log.d("MainActivity", "Customer ID: $customerId")
         Log.d("MainActivity", "Selected services: $selectedServices (size: ${selectedServices.size})")
-        Log.d("MainActivity", "Selected machine: $selectedMachine")
         Log.d("MainActivity", "Selected date: $selectedDate")
         Log.d("MainActivity", "Selected time: $selectedTime")
         Log.d("MainActivity", "Selected delivery: $selectedDeliveryMethod")
@@ -1032,11 +813,6 @@ class MainActivity : AppCompatActivity() {
 
         if (selectedServices.isEmpty()) {
             Toast.makeText(this, "Please select at least one service", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        if (selectedMachine == null) {
-            Toast.makeText(this, "Please select a machine", Toast.LENGTH_SHORT).show()
             return false
         }
 
@@ -1078,10 +854,8 @@ class MainActivity : AppCompatActivity() {
             try {
                 Log.d("MainActivity", "=== STARTING APPOINTMENT BOOKING ===")
 
-                // First, check if appointments table has delivery_method column
-                // If not, we'll add it to the database
-
                 // Create appointment with detergent add-on
+                // Machine will be assigned by admin when customer arrives
                 val detergentOption = if (selectedDetergentBrand != null) "store" else "own"
                 val detergentCharge = if (selectedDetergentBrand != null) {
                     selectedDetergentQuantity * detergentPricePerUnit
@@ -1095,13 +869,14 @@ class MainActivity : AppCompatActivity() {
                     appointment_time = selectedTime!!,
                     status = "pending",
                     delivery_method = selectedDeliveryMethod,
-                    machine = selectedMachine,
+                    machine = null, // Machine will be assigned by admin later
                     detergent_option = detergentOption,
                     detergent_charge = detergentCharge
                 )
 
                 Log.d("MainActivity", "Inserting appointment: $appointmentData")
                 Log.d("MainActivity", "Detergent: $detergentOption, Brand: $selectedDetergentBrand, Quantity: $selectedDetergentQuantity, Charge: ₱$detergentCharge")
+                Log.d("MainActivity", "Machine: Not assigned (admin will assign on arrival)")
 
                 val appointmentResponse = supabaseClient.from("appointments")
                     .insert(appointmentData) {
@@ -1173,7 +948,7 @@ class MainActivity : AppCompatActivity() {
 
                     Toast.makeText(
                         this@MainActivity,
-                        "Appointment booked successfully!",
+                        "Appointment booked successfully! Machine will be assigned on arrival.",
                         Toast.LENGTH_LONG
                     ).show()
 
@@ -1224,24 +999,13 @@ class MainActivity : AppCompatActivity() {
         btnWashFold.isChecked = false
         btnDryCleaning.isChecked = false
         btnIroning.isChecked = false
-        btnExpress.isChecked = false
-
-        // Reset machines
-        selectedMachine = null
-        btnMachine1.isChecked = false
-        btnMachine2.isChecked = false
-        btnMachine3.isChecked = false
-        btnMachine4.isChecked = false
-        btnMachine5.isChecked = false
-        btnMachine6.isChecked = false
 
         // Reset time
         selectedTime = null
         btnTime9am.isChecked = false
-        btnTime11am.isChecked = false
-        btnTime1pm.isChecked = false
-        btnTime3pm.isChecked = false
-        btnTime5pm.isChecked = false
+        btnTime1130am.isChecked = false
+        btnTime2pm.isChecked = false
+        btnTime430pm.isChecked = false
         btnTime7pm.isChecked = false
 
         // Reset delivery and payment

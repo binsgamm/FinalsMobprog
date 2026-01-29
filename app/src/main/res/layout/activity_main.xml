@@ -82,7 +82,7 @@
                         android:textSize="22sp"
                         android:textStyle="bold" />
 
-                    <!-- SERVICES -->
+                    <!-- SERVICES (Express removed - only 3 services) -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -91,29 +91,24 @@
                         android:textColor="#333"
                         android:textStyle="bold" />
 
-                    <GridLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:columnCount="2"
-                        android:alignmentMode="alignMargins"
-                        android:columnOrderPreserved="false"
-                        android:useDefaultMargins="false">
+                        android:orientation="vertical"
+                        android:layout_marginBottom="16dp">
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnWashFold"
                             style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_row="0"
-                            android:layout_column="0"
-                            android:layout_margin="4dp"
-                            android:minHeight="48dp"
+                            android:layout_marginBottom="8dp"
+                            android:minHeight="56dp"
                             android:checkable="true"
-                            android:text="Wash and Fold"
+                            android:text="🧺 Wash and Fold - ₱50"
                             android:textAllCaps="false"
                             android:textColor="@color/service_button_text"
-                            android:textSize="12sp"
+                            android:textSize="14sp"
                             app:backgroundTint="@color/service_button_background"
                             app:cornerRadius="12dp"
                             app:strokeColor="@color/service_button_stroke"
@@ -122,18 +117,15 @@
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnDryCleaning"
                             style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_row="0"
-                            android:layout_column="1"
-                            android:layout_margin="4dp"
-                            android:minHeight="48dp"
+                            android:layout_marginBottom="8dp"
+                            android:minHeight="56dp"
                             android:checkable="true"
-                            android:text="Dry Cleaning"
+                            android:text="👔 Dry Cleaning - ₱80"
                             android:textAllCaps="false"
                             android:textColor="@color/service_button_text"
-                            android:textSize="12sp"
+                            android:textSize="14sp"
                             app:backgroundTint="@color/service_button_background"
                             app:cornerRadius="12dp"
                             app:strokeColor="@color/service_button_stroke"
@@ -142,49 +134,35 @@
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnIroning"
                             style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_row="1"
-                            android:layout_column="0"
-                            android:layout_margin="4dp"
-                            android:minHeight="48dp"
+                            android:minHeight="56dp"
                             android:checkable="true"
-                            android:text="Ironing"
+                            android:text="👕 Ironing - ₱40"
                             android:textAllCaps="false"
                             android:textColor="@color/service_button_text"
-                            android:textSize="12sp"
+                            android:textSize="14sp"
                             app:backgroundTint="@color/service_button_background"
                             app:cornerRadius="12dp"
                             app:strokeColor="@color/service_button_stroke"
                             app:strokeWidth="2dp" />
+                    </LinearLayout>
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnExpress"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_row="1"
-                            android:layout_column="1"
-                            android:layout_margin="4dp"
-                            android:minHeight="48dp"
-                            android:checkable="true"
-                            android:text="Express"
-                            android:textAllCaps="false"
-                            android:textColor="@color/service_button_text"
-                            android:textSize="12sp"
-                            app:backgroundTint="@color/service_button_background"
-                            app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
-                            app:strokeWidth="2dp" />
-                    </GridLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="💡 Tip: You can select multiple services"
+                        android:textColor="#666"
+                        android:textSize="12sp"
+                        android:textStyle="italic"
+                        android:layout_marginBottom="16dp"
+                        android:gravity="center" />
 
                     <!-- DATE & TIME -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
+                        android:layout_marginTop="8dp"
                         android:layout_marginBottom="10dp"
                         android:text="Date &amp; Time"
                         android:textColor="#333"
@@ -245,7 +223,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="Select Time"
+                        android:text="Select Time (2.5-hour service intervals)"
                         android:textColor="#333"
                         android:textStyle="bold" />
 
@@ -277,7 +255,7 @@
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnTime11am"
+                            android:id="@+id/btnTime1130am"
                             style="@style/Widget.Material3.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -287,7 +265,7 @@
                             android:layout_margin="4dp"
                             android:minHeight="48dp"
                             android:checkable="true"
-                            android:text="11:00 AM"
+                            android:text="11:30 AM"
                             android:textColor="@color/time_button_text"
                             app:backgroundTint="@color/time_button_background"
                             app:cornerRadius="12dp"
@@ -295,7 +273,7 @@
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnTime1pm"
+                            android:id="@+id/btnTime2pm"
                             style="@style/Widget.Material3.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -305,7 +283,7 @@
                             android:layout_margin="4dp"
                             android:minHeight="48dp"
                             android:checkable="true"
-                            android:text="1:00 PM"
+                            android:text="2:00 PM"
                             android:textColor="@color/time_button_text"
                             app:backgroundTint="@color/time_button_background"
                             app:cornerRadius="12dp"
@@ -313,7 +291,7 @@
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnTime3pm"
+                            android:id="@+id/btnTime430pm"
                             style="@style/Widget.Material3.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -323,25 +301,7 @@
                             android:layout_margin="4dp"
                             android:minHeight="48dp"
                             android:checkable="true"
-                            android:text="3:00 PM"
-                            android:textColor="@color/time_button_text"
-                            app:backgroundTint="@color/time_button_background"
-                            app:cornerRadius="12dp"
-                            app:strokeColor="@color/time_button_stroke"
-                            app:strokeWidth="2dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnTime5pm"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_row="1"
-                            android:layout_column="1"
-                            android:layout_margin="4dp"
-                            android:minHeight="48dp"
-                            android:checkable="true"
-                            android:text="5:00 PM"
+                            android:text="4:30 PM"
                             android:textColor="@color/time_button_text"
                             app:backgroundTint="@color/time_button_background"
                             app:cornerRadius="12dp"
@@ -355,7 +315,7 @@
                             android:layout_height="wrap_content"
                             android:layout_columnWeight="1"
                             android:layout_row="1"
-                            android:layout_column="2"
+                            android:layout_column="1"
                             android:layout_margin="4dp"
                             android:minHeight="48dp"
                             android:checkable="true"
@@ -367,132 +327,38 @@
                             app:strokeWidth="2dp" />
                     </GridLayout>
 
-                    <!-- MACHINE -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:text="Select Machine"
-                        android:textColor="#333"
-                        android:textStyle="bold" />
-
-                    <GridLayout
+                    <!-- INFO NOTE ABOUT MACHINE ASSIGNMENT -->
+                    <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:columnCount="2"
-                        android:alignmentMode="alignMargins"
-                        android:columnOrderPreserved="false"
-                        android:useDefaultMargins="false">
+                        app:cardBackgroundColor="#E3F2FD"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="0dp">
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnMachine1"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_row="0"
-                            android:layout_column="0"
-                            android:layout_margin="4dp"
-                            android:minHeight="48dp"
-                            android:checkable="true"
-                            android:text="Machine 1"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
-                            app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
-                            app:strokeWidth="2dp" />
+                            android:orientation="horizontal"
+                            android:padding="12dp"
+                            android:gravity="center_vertical">
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnMachine2"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_row="0"
-                            android:layout_column="1"
-                            android:layout_margin="4dp"
-                            android:minHeight="48dp"
-                            android:checkable="true"
-                            android:text="Machine 2"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
-                            app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
-                            app:strokeWidth="2dp" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="ℹ️"
+                                android:textSize="20sp"
+                                android:layout_marginEnd="8dp" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnMachine3"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_row="1"
-                            android:layout_column="0"
-                            android:layout_margin="4dp"
-                            android:minHeight="48dp"
-                            android:checkable="true"
-                            android:text="Machine 3"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
-                            app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
-                            app:strokeWidth="2dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnMachine4"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_row="1"
-                            android:layout_column="1"
-                            android:layout_margin="4dp"
-                            android:minHeight="48dp"
-                            android:checkable="true"
-                            android:text="Machine 4"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
-                            app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
-                            app:strokeWidth="2dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnMachine5"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_row="2"
-                            android:layout_column="0"
-                            android:layout_margin="4dp"
-                            android:minHeight="48dp"
-                            android:checkable="true"
-                            android:text="Machine 5"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
-                            app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
-                            app:strokeWidth="2dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnMachine6"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_row="2"
-                            android:layout_column="1"
-                            android:layout_margin="4dp"
-                            android:minHeight="48dp"
-                            android:checkable="true"
-                            android:text="Machine 6"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
-                            app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
-                            app:strokeWidth="2dp" />
-                    </GridLayout>
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Machine will be assigned by staff when you arrive at the laundry shop."
+                                android:textColor="#1565C0"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
 
                     <!-- DETERGENT ADD-ON -->
                     <TextView
