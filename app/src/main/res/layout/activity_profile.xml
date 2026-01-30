@@ -57,14 +57,16 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tvHeaderName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/user_full_name_placeholder"
                             android:textColor="#FFF"
-                            android:textSize="28sp"
+                            android:textSize="24sp"
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvHeaderEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/user_email_placeholder"
@@ -104,6 +106,7 @@
                             android:textStyle="bold" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnEditProfile"
                             style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -128,6 +131,7 @@
                         android:drawablePadding="8dp"
                         app:drawableTint="#777" />
                     <TextView
+                        android:id="@+id/tvProfileFullName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -148,6 +152,7 @@
                         android:drawablePadding="8dp"
                         app:drawableTint="#777" />
                     <TextView
+                        android:id="@+id/tvProfileEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -168,6 +173,7 @@
                         android:drawablePadding="8dp"
                         app:drawableTint="#777" />
                     <TextView
+                        android:id="@+id/tvProfilePhone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -188,6 +194,7 @@
                         android:drawablePadding="8dp"
                         app:drawableTint="#777" />
                     <TextView
+                        android:id="@+id/tvProfileAddress"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
