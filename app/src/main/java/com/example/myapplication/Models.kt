@@ -109,7 +109,9 @@ data class PaymentInsert(
     val down_payment: Double = 0.0,
     val remaining_balance: Double = 0.0,
     val is_down_payment: Boolean = false,
-    val proof_image: String? = null  // Base64 encoded image for E-Wallet payments
+    val proof_image: String? = null,  // Base64 encoded image for E-Wallet payments
+    val account_name: String? = null,
+    val account_number: String? = null
 )
 
 @Serializable
@@ -121,7 +123,9 @@ data class Payment(
     val payment_method: String? = null,
     val proof_image: String? = null,
     val payment_status: String? = null,
-    val verification_date: String? = null
+    val verification_date: String? = null,
+    val account_name: String? = null,
+    val account_number: String? = null
 )
 
 // User data for signup
