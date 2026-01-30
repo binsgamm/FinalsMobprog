@@ -327,7 +327,7 @@
                             app:strokeWidth="2dp" />
                     </GridLayout>
 
-                    <!-- INFO NOTE ABOUT MACHINE ASSIGNMENT -->
+                    <!-- INFO NOTE -->
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -360,7 +360,7 @@
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
-                    <!-- DETERGENT ADD-ON -->
+                    <!-- DETERGENT -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -406,7 +406,7 @@
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                    <!-- BRAND SELECTION (Initially Hidden) -->
+                    <!-- BRAND SELECTION -->
                     <LinearLayout
                         android:id="@+id/layoutBrandSelection"
                         android:layout_width="match_parent"
@@ -478,7 +478,6 @@
                                 app:strokeWidth="2dp" />
                         </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                        <!-- QUANTITY SELECTION -->
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -533,7 +532,6 @@
                                 app:strokeWidth="2dp" />
                         </LinearLayout>
 
-                        <!-- TOTAL DISPLAY -->
                         <TextView
                             android:id="@+id/tvDetergentTotal"
                             android:layout_width="match_parent"
@@ -546,7 +544,7 @@
                             android:layout_marginBottom="8dp" />
                     </LinearLayout>
 
-                    <!-- DELIVERY -->
+                    <!-- DELIVERY METHOD -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -593,7 +591,7 @@
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                    <!-- PAYMENT -->
+                    <!-- PAYMENT METHOD -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -640,22 +638,34 @@
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                    <!-- E-WALLET TRANSACTION DETAILS (Initially Hidden) -->
+                    <!-- E-WALLET DETAILS CONTAINER -->
                     <LinearLayout
                         android:id="@+id/layoutEWalletDetails"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:visibility="gone"
-                        android:layout_marginTop="8dp">
+                        android:layout_marginTop="8dp"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="E-Wallet Transaction Details"
+                            android:textColor="#D32F2F"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="8dp" />
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilEWalletName"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:hint="Account Name">
+                            android:layout_marginBottom="12dp"
+                            android:hint="Account Name"
+                            app:boxStrokeColor="#2d58a9"
+                            app:hintTextColor="#2d58a9">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etEWalletName"
@@ -669,7 +679,9 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Account Number">
+                            android:hint="Account Number (e.g. 09123456789)"
+                            app:boxStrokeColor="#2d58a9"
+                            app:hintTextColor="#2d58a9">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etEWalletNumber"
@@ -679,14 +691,14 @@
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
-                    <!-- E-WALLET PAYMENT PROOF (Initially Hidden) -->
+                    <!-- E-WALLET PAYMENT PROOF -->
                     <LinearLayout
                         android:id="@+id/layoutPaymentProof"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:visibility="gone"
-                        android:layout_marginTop="12dp">
+                        android:layout_marginTop="16dp">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -785,9 +797,9 @@
                                 android:text="Booking Summary"
                                 android:textColor="#333"
                                 android:textSize="16sp"
-                                android:textStyle="bold"                                 android:layout_marginBottom="12dp" />
+                                android:textStyle="bold"
+                                android:layout_marginBottom="12dp" />
 
-                            <!-- Services Cost -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -812,7 +824,6 @@
                                     android:textStyle="bold" />
                             </LinearLayout>
 
-                            <!-- Detergent Cost -->
                             <LinearLayout
                                 android:id="@+id/layoutDetergentCost"
                                 android:layout_width="match_parent"
@@ -839,7 +850,6 @@
                                     android:textStyle="bold" />
                             </LinearLayout>
 
-                            <!-- Divider -->
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
@@ -847,7 +857,6 @@
                                 android:layout_marginTop="8dp"
                                 android:layout_marginBottom="8dp" />
 
-                            <!-- Total -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -872,7 +881,6 @@
                                     android:textStyle="bold" />
                             </LinearLayout>
 
-                            <!-- Note about 8kg max -->
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
