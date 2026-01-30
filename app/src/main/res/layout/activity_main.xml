@@ -11,7 +11,8 @@
         android:layout_height="300dp"
         android:scaleType="centerCrop"
         android:src="@drawable/bg_header"
-        android:alpha="0.6" />
+        android:alpha="0.6"
+        android:contentDescription="@null" />
 
     <!-- Bottom Decorative Background -->
     <ImageView
@@ -21,7 +22,8 @@
         android:scaleType="centerCrop"
         android:src="@drawable/bg_header"
         android:rotation="180"
-        android:alpha="0.4" />
+        android:alpha="0.4"
+        android:contentDescription="@null" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -107,11 +109,11 @@
                             android:checkable="true"
                             android:text="🧺 Wash and Fold - ₱50"
                             android:textAllCaps="false"
-                            android:textColor="@color/service_button_text"
+                            android:textColor="@color/service_button_text_unchecked"
                             android:textSize="14sp"
-                            app:backgroundTint="@color/service_button_background"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -124,11 +126,11 @@
                             android:checkable="true"
                             android:text="👔 Dry Cleaning - ₱80"
                             android:textAllCaps="false"
-                            android:textColor="@color/service_button_text"
+                            android:textColor="@color/service_button_text_unchecked"
                             android:textSize="14sp"
-                            app:backgroundTint="@color/service_button_background"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -140,11 +142,11 @@
                             android:checkable="true"
                             android:text="👕 Ironing - ₱40"
                             android:textAllCaps="false"
-                            android:textColor="@color/service_button_text"
+                            android:textColor="@color/service_button_text_unchecked"
                             android:textSize="14sp"
-                            app:backgroundTint="@color/service_button_background"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
                     </LinearLayout>
 
@@ -248,10 +250,10 @@
                             android:minHeight="48dp"
                             android:checkable="true"
                             android:text="9:00 AM"
-                            android:textColor="@color/time_button_text"
-                            app:backgroundTint="@color/time_button_background"
+                            android:textColor="@color/time_button_text_unchecked"
+                            app:backgroundTint="@color/time_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/time_button_stroke"
+                            app:strokeColor="@color/time_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -266,10 +268,10 @@
                             android:minHeight="48dp"
                             android:checkable="true"
                             android:text="11:30 AM"
-                            android:textColor="@color/time_button_text"
-                            app:backgroundTint="@color/time_button_background"
+                            android:textColor="@color/time_button_text_unchecked"
+                            app:backgroundTint="@color/time_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/time_button_stroke"
+                            app:strokeColor="@color/time_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -284,10 +286,10 @@
                             android:minHeight="48dp"
                             android:checkable="true"
                             android:text="2:00 PM"
-                            android:textColor="@color/time_button_text"
-                            app:backgroundTint="@color/time_button_background"
+                            android:textColor="@color/time_button_text_unchecked"
+                            app:backgroundTint="@color/time_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/time_button_stroke"
+                            app:strokeColor="@color/time_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -302,10 +304,10 @@
                             android:minHeight="48dp"
                             android:checkable="true"
                             android:text="4:30 PM"
-                            android:textColor="@color/time_button_text"
-                            app:backgroundTint="@color/time_button_background"
+                            android:textColor="@color/time_button_text_unchecked"
+                            app:backgroundTint="@color/time_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/time_button_stroke"
+                            app:strokeColor="@color/time_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -320,10 +322,10 @@
                             android:minHeight="48dp"
                             android:checkable="true"
                             android:text="7:00 PM"
-                            android:textColor="@color/time_button_text"
-                            app:backgroundTint="@color/time_button_background"
+                            android:textColor="@color/time_button_text_unchecked"
+                            app:backgroundTint="@color/time_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/time_button_stroke"
+                            app:strokeColor="@color/time_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
                     </GridLayout>
 
@@ -385,10 +387,10 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="Own"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -399,10 +401,10 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="Add-Ons"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -441,10 +443,10 @@
                                 android:minHeight="48dp"
                                 android:text="Brand X"
                                 android:textSize="12sp"
-                                android:textColor="@color/service_button_text"
-                                app:backgroundTint="@color/service_button_background"
+                                android:textColor="@color/service_button_text_unchecked"
+                                app:backgroundTint="@color/service_button_unchecked"
                                 app:cornerRadius="12dp"
-                                app:strokeColor="@color/service_button_stroke"
+                                app:strokeColor="@color/service_button_stroke_unchecked"
                                 app:strokeWidth="2dp" />
 
                             <com.google.android.material.button.MaterialButton
@@ -456,10 +458,10 @@
                                 android:minHeight="48dp"
                                 android:text="Brand Y"
                                 android:textSize="12sp"
-                                android:textColor="@color/service_button_text"
-                                app:backgroundTint="@color/service_button_background"
+                                android:textColor="@color/service_button_text_unchecked"
+                                app:backgroundTint="@color/service_button_unchecked"
                                 app:cornerRadius="12dp"
-                                app:strokeColor="@color/service_button_stroke"
+                                app:strokeColor="@color/service_button_stroke_unchecked"
                                 app:strokeWidth="2dp" />
 
                             <com.google.android.material.button.MaterialButton
@@ -471,10 +473,10 @@
                                 android:minHeight="48dp"
                                 android:text="Brand Z"
                                 android:textSize="12sp"
-                                android:textColor="@color/service_button_text"
-                                app:backgroundTint="@color/service_button_background"
+                                android:textColor="@color/service_button_text_unchecked"
+                                app:backgroundTint="@color/service_button_unchecked"
                                 app:cornerRadius="12dp"
-                                app:strokeColor="@color/service_button_stroke"
+                                app:strokeColor="@color/service_button_stroke_unchecked"
                                 app:strokeWidth="2dp" />
                         </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -570,10 +572,10 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="Drop Off"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -584,10 +586,10 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="Pickup"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -617,10 +619,10 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="Cash"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -631,10 +633,10 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="E-Wallet"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -709,8 +711,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="📷 Choose Image"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="#2d58a9"
+                            app:backgroundTint="#FFFFFF"
                             app:cornerRadius="12dp"
                             app:strokeColor="#2d58a9"
                             app:strokeWidth="2dp"

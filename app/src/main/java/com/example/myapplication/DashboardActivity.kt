@@ -10,10 +10,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
+import com.example.myapplication.utils.supabaseClient.supabase
 import com.google.android.material.button.MaterialButton
-import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -48,20 +47,6 @@ class DashboardActivity : AppCompatActivity() {
     private var userId: String? = null
     private var customerId: Int? = null
 
-    // Supabase client
-    private val supabaseClient: SupabaseClient by lazy {
-        createSupabaseClient(
-            supabaseUrl = "https://mxxyzcoevcsniinvleos.supabase.co",
-            supabaseKey = "sb_publishable_pdEutnY70rVI_FVG6Casaw_03co6UQR"
-        ) {
-            install(io.github.jan.supabase.postgrest.Postgrest)
-            install(io.github.jan.supabase.auth.Auth) {
-                alwaysAutoRefresh = true
-                autoLoadFromStorage = true
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
@@ -70,9 +55,8 @@ class DashboardActivity : AppCompatActivity() {
 
         // Get user ID from intent
         userId = intent.getStringExtra("USER_ID")
-        Log.d("DashboardActivity", "User ID from intent: $userId")
-
-        // Initial data load
+        
+        // Load data
         loadUserData()
     }
 
@@ -80,7 +64,6 @@ class DashboardActivity : AppCompatActivity() {
         tvGreeting = findViewById(R.id.tvGreeting)
         tvLocation = findViewById(R.id.tvLocation)
 
-        // Order section
         tvSeeAllOrders = findViewById(R.id.tvSeeAllOrders)
         cardNearestAppointment = findViewById(R.id.cardNearestAppointment)
         layoutEmptyAppointments = findViewById(R.id.layoutEmptyAppointments)
@@ -89,10 +72,8 @@ class DashboardActivity : AppCompatActivity() {
         tvAppointmentDate = findViewById(R.id.tvAppointmentDate)
         tvAppointmentServices = findViewById(R.id.tvAppointmentServices)
 
-        // Services section
         tvSeeAllServices = findViewById(R.id.tvSeeAllServices)
 
-        // Navigation buttons
         btnBook = findViewById(R.id.btnBook)
         btnAppointments = findViewById(R.id.btnAppointments)
         btnProfile = findViewById(R.id.btnProfile)
@@ -114,36 +95,32 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun navigateToBooking() {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("USER_ID", userId)
+        val intent = Intent(this, MainActivity::class.java).apply { putExtra("USER_ID", userId) }
         startActivity(intent)
     }
 
     private fun navigateToAppointments() {
-        val intent = Intent(this, AppointmentsActivity::class.java)
-        intent.putExtra("USER_ID", userId)
+        val intent = Intent(this, AppointmentsActivity::class.java).apply { putExtra("USER_ID", userId) }
         startActivity(intent)
     }
 
     private fun navigateToProfile() {
-        val intent = Intent(this, ProfileActivity::class.java)
-        intent.putExtra("USER_ID", userId)
+        val intent = Intent(this, ProfileActivity::class.java).apply { putExtra("USER_ID", userId) }
         startActivity(intent)
     }
 
     private fun loadUserData() {
         lifecycleScope.launch {
             try {
-                // If userId is missing, try session with a small retry
+                // Use singleton supabase instance
                 if (userId == null) {
-                    var attempts = 0
-                    while (userId == null && attempts < 5) {
-                        userId = supabaseClient.auth.currentUserOrNull()?.id
-                        if (userId == null) {
-                            delay(500)
-                            attempts++
-                        }
-                    }
+                    userId = supabase.auth.currentUserOrNull()?.id
+                }
+
+                if (userId == null) {
+                    // Try waiting briefly for session restoration
+                    delay(1000)
+                    userId = supabase.auth.currentUserOrNull()?.id
                 }
 
                 if (userId == null) {
@@ -154,10 +131,9 @@ class DashboardActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                Log.d("DashboardActivity", "Fetching customer data for user: $userId")
+                Log.d("DashboardActivity", "Fetching data for user: $userId")
                 
-                // Fetch customer details
-                val response = supabaseClient.from("customers")
+                val response = supabase.from("customers")
                     .select {
                         filter { eq("user_id", userId!!) }
                     }
@@ -170,25 +146,22 @@ class DashboardActivity : AppCompatActivity() {
                     customerId = customer.customer_id
                     
                     withContext(Dispatchers.Main) {
-                        // Display actual user name and address from database
                         tvGreeting.text = "Hey, ${customer.f_name}! 👋"
                         tvLocation.text = customer.address ?: "Address not set"
                     }
-
-                    // Load the user's nearest appointment
                     loadNearestAppointment()
                 } else {
-                    Log.e("DashboardActivity", "No customer found for user_id: $userId")
                     withContext(Dispatchers.Main) {
-                        tvGreeting.text = "Welcome! 👋"
+                        tvGreeting.text = "Hey there! 👋"
                         tvLocation.text = "Profile incomplete"
                     }
                 }
 
             } catch (e: Exception) {
-                Log.e("DashboardActivity", "Error loading user data: ${e.message}")
+                Log.e("DashboardActivity", "Error: ${e.message}", e)
                 withContext(Dispatchers.Main) {
                     tvGreeting.text = "Error Loading Data"
+                    Toast.makeText(this@DashboardActivity, "Failed to connect: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -199,8 +172,7 @@ class DashboardActivity : AppCompatActivity() {
             try {
                 if (customerId == null) return@launch
 
-                // Get active appointments
-                val response = supabaseClient.from("appointments")
+                val response = supabase.from("appointments")
                     .select {
                         filter {
                             eq("customer_id", customerId!!)
@@ -216,7 +188,6 @@ class DashboardActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                // Find the soonest future appointment
                 val now = Calendar.getInstance()
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
@@ -239,13 +210,11 @@ class DashboardActivity : AppCompatActivity() {
                 }.minByOrNull { it.second.timeInMillis }?.first
 
                 if (nextAppointment != null) {
-                    // Fetch services for this specific appointment
-                    val servicesResponse = supabaseClient.from("appointment_services")
+                    val servicesResponse = supabase.from("appointment_services")
                         .select { filter { eq("appointment_id", nextAppointment.appointment_id) } }
                     val appServices = json.decodeFromString<List<AppointmentService>>(servicesResponse.data)
                     
-                    // Fetch service names
-                    val allServicesResponse = supabaseClient.from("services").select()
+                    val allServicesResponse = supabase.from("services").select()
                     val allServices = json.decodeFromString<List<Service>>(allServicesResponse.data)
                     val serviceNamesMap = allServices.associate { it.service_id to it.service_name }
                     
@@ -257,7 +226,7 @@ class DashboardActivity : AppCompatActivity() {
                 }
 
             } catch (e: Exception) {
-                Log.e("DashboardActivity", "Error loading appointment: ${e.message}")
+                Log.e("DashboardActivity", "Error load appointment: ${e.message}")
                 showEmptyAppointmentState()
             }
         }
@@ -285,7 +254,6 @@ class DashboardActivity : AppCompatActivity() {
             tvAppointmentServices.text = if (serviceNames.isNotEmpty()) serviceNames.joinToString(", ") else "Standard Service"
             tvAppointmentStatus.text = appointment.status.uppercase()
 
-            // Update status background color
             val statusColor = when (appointment.status.lowercase()) {
                 "pending" -> "#FF9800"
                 "in_progress", "in progress" -> "#2196F3"
