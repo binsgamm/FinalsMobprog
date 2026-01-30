@@ -3,18 +3,20 @@ package com.example.myapplication
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.from
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -66,11 +68,11 @@ class DashboardActivity : AppCompatActivity() {
 
         initializeViews()
 
-        // Get user ID from intent or current session
+        // Get user ID from intent
         userId = intent.getStringExtra("USER_ID")
-        Log.d("DashboardActivity", "Received user ID from intent: $userId")
+        Log.d("DashboardActivity", "User ID from intent: $userId")
 
-        // Load user data
+        // Initial data load
         loadUserData()
     }
 
@@ -100,40 +102,20 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun setupNavigationListeners() {
-        btnBook.setOnClickListener {
-            navigateToBooking()
-        }
-
-        btnAppointments.setOnClickListener {
-            navigateToAppointments()
-        }
-
-        btnProfile.setOnClickListener {
-            navigateToProfile()
-        }
+        btnBook.setOnClickListener { navigateToBooking() }
+        btnAppointments.setOnClickListener { navigateToAppointments() }
+        btnProfile.setOnClickListener { navigateToProfile() }
     }
 
     private fun setupClickListeners() {
-        // See All Orders -> AppointmentsActivity
-        tvSeeAllOrders.setOnClickListener {
-            navigateToAppointments()
-        }
-
-        // Appointment Card -> AppointmentsActivity
-        cardNearestAppointment.setOnClickListener {
-            navigateToAppointments()
-        }
-
-        // See All Services -> MainActivity (Booking)
-        tvSeeAllServices.setOnClickListener {
-            navigateToBooking()
-        }
+        tvSeeAllOrders.setOnClickListener { navigateToAppointments() }
+        cardNearestAppointment.setOnClickListener { navigateToAppointments() }
+        tvSeeAllServices.setOnClickListener { navigateToBooking() }
     }
 
     private fun navigateToBooking() {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("USER_ID", userId)
-        Log.d("DashboardActivity", "Passing USER_ID to MainActivity: $userId")
         startActivity(intent)
     }
 
@@ -150,100 +132,75 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun loadUserData() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             try {
-                // If userId is null, try to get it from current session
+                // If userId is missing, try session with a small retry
                 if (userId == null) {
-                    val currentUser = supabaseClient.auth.currentUserOrNull()
-                    userId = currentUser?.id
-                    Log.d("DashboardActivity", "Got user ID from session: $userId")
+                    var attempts = 0
+                    while (userId == null && attempts < 5) {
+                        userId = supabaseClient.auth.currentUserOrNull()?.id
+                        if (userId == null) {
+                            delay(500)
+                            attempts++
+                        }
+                    }
                 }
-
-                Log.d("DashboardActivity", "Loading data for user_id: $userId")
 
                 if (userId == null) {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            this@DashboardActivity,
-                            "No user session found. Please log in again.",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(this@DashboardActivity, "Session lost. Please log in again.", Toast.LENGTH_LONG).show()
                         navigateToLogin()
                     }
                     return@launch
                 }
 
-                // Query the customers table for this user
-                Log.d("DashboardActivity", "Querying for user_id: $userId")
+                Log.d("DashboardActivity", "Fetching customer data for user: $userId")
+                
+                // Fetch customer details
                 val response = supabaseClient.from("customers")
-                    .select() {
-                        filter {
-                            eq("user_id", userId!!)
-                        }
+                    .select {
+                        filter { eq("user_id", userId!!) }
                     }
 
-                Log.d("DashboardActivity", "Database response: ${response.data}")
-
-                // Parse the response
                 val json = Json { ignoreUnknownKeys = true }
-
-                if (response.data == "[]" || response.data.trim() == "[]") {
-                    Log.e("DashboardActivity", "Empty response - no customer found for user_id: $userId")
-
-                    withContext(Dispatchers.Main) {
-                        tvGreeting.text = "Hey there! 👋"
-                        tvLocation.text = "No address on file"
-                    }
-                    return@launch
-                }
-
                 val customers = json.decodeFromString<List<Customer>>(response.data)
 
                 if (customers.isNotEmpty()) {
                     val customer = customers[0]
                     customerId = customer.customer_id
-                    Log.d("DashboardActivity", "Customer found: ${customer.f_name} ${customer.l_name}, ID: $customerId")
-
+                    
                     withContext(Dispatchers.Main) {
-                        // Update UI with user data
-                        tvGreeting.text = "Hey, ${customer.l_name}! 👋"
-                        tvLocation.text = customer.address ?: "No address on file"
+                        // Display actual user name and address from database
+                        tvGreeting.text = "Hey, ${customer.f_name}! 👋"
+                        tvLocation.text = customer.address ?: "Address not set"
                     }
 
-                    // Load nearest appointment
+                    // Load the user's nearest appointment
                     loadNearestAppointment()
                 } else {
                     Log.e("DashboardActivity", "No customer found for user_id: $userId")
-
                     withContext(Dispatchers.Main) {
-                        tvGreeting.text = "Hey there! 👋"
-                        tvLocation.text = "No address on file"
+                        tvGreeting.text = "Welcome! 👋"
+                        tvLocation.text = "Profile incomplete"
                     }
                 }
 
             } catch (e: Exception) {
-                Log.e("DashboardActivity", "Error loading user data: ${e.message}", e)
-
+                Log.e("DashboardActivity", "Error loading user data: ${e.message}")
                 withContext(Dispatchers.Main) {
-                    tvGreeting.text = "Hey there! 👋"
-                    tvLocation.text = "Unable to load address"
+                    tvGreeting.text = "Error Loading Data"
                 }
             }
         }
     }
 
     private fun loadNearestAppointment() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             try {
-                if (customerId == null) {
-                    Log.e("DashboardActivity", "Cannot load appointment - no customer ID")
-                    return@launch
-                }
+                if (customerId == null) return@launch
 
-                Log.d("DashboardActivity", "=== LOADING NEAREST APPOINTMENT ===")
-
-                // Get all appointments for this customer
-                val appointmentsResponse = supabaseClient.from("appointments")
+                // Get active appointments
+                val response = supabaseClient.from("appointments")
                     .select {
                         filter {
                             eq("customer_id", customerId!!)
@@ -252,97 +209,97 @@ class DashboardActivity : AppCompatActivity() {
                     }
 
                 val json = Json { ignoreUnknownKeys = true }
-                val appointments = json.decodeFromString<List<AppointmentResponse>>(appointmentsResponse.data)
+                val appointments = json.decodeFromString<List<AppointmentResponse>>(response.data)
 
                 if (appointments.isEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        layoutEmptyAppointments.visibility = android.view.View.VISIBLE
-                        layoutAppointmentDetails.visibility = android.view.View.GONE
-                    }
+                    showEmptyAppointmentState()
                     return@launch
                 }
 
-                // Pre-load all services
-                val allServicesResponse = supabaseClient.from("services").select()
-                val allServices = json.decodeFromString<List<Service>>(allServicesResponse.data)
-                val servicesMap = allServices.associateBy { it.service_id }
-
-                // Pre-load appointment services
-                val appointmentIds = appointments.map { it.appointment_id }
-                val allAppointmentServicesResponse = supabaseClient.from("appointment_services").select()
-                val allAppointmentServices = json.decodeFromString<List<AppointmentService>>(allAppointmentServicesResponse.data)
-                val appointmentServicesMap = allAppointmentServices
-                    .filter { it.appointment_id in appointmentIds }
-                    .groupBy { it.appointment_id }
-
+                // Find the soonest future appointment
                 val now = Calendar.getInstance()
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
-                val futureAppointments = appointments.filter { appointment ->
+                val nextAppointment = appointments.mapNotNull { appointment ->
                     try {
-                        val appointmentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                            .parse(appointment.appointment_date)
-                        val appointmentTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-                            .parse(appointment.appointment_time)
+                        val date = dateFormat.parse(appointment.appointment_date)
+                        val time = timeFormat.parse(appointment.appointment_time)
+                        if (date == null || time == null) return@mapNotNull null
 
-                        if (appointmentDate == null || appointmentTime == null) return@filter false
-
-                        val appointmentDateTime = Calendar.getInstance()
-                        appointmentDateTime.time = appointmentDate
-                        appointmentDateTime.set(Calendar.HOUR_OF_DAY, appointmentTime.hours)
-                        appointmentDateTime.set(Calendar.MINUTE, appointmentTime.minutes)
-                        appointmentDateTime.set(Calendar.SECOND, appointmentTime.seconds)
-
-                        appointmentDateTime.timeInMillis > now.timeInMillis
-                    } catch (e: Exception) {
-                        false
-                    }
-                }.sortedWith(
-                    compareBy<AppointmentResponse> { it.appointment_date }
-                        .thenBy { it.appointment_time }
-                )
-
-                if (futureAppointments.isNotEmpty()) {
-                    val nearest = futureAppointments[0]
-                    val appointmentServices = appointmentServicesMap[nearest.appointment_id] ?: emptyList()
-                    val serviceNames = appointmentServices.mapNotNull { servicesMap[it.service_id]?.service_name }
-
-                    withContext(Dispatchers.Main) {
-                        layoutEmptyAppointments.visibility = android.view.View.GONE
-                        layoutAppointmentDetails.visibility = android.view.View.VISIBLE
-
-                        val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
-                        val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-                        val displayTimeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
-
-                        val date = dateFormat.format(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(nearest.appointment_date)!!)
-                        val time = displayTimeFormat.format(timeFormat.parse(nearest.appointment_time)!!)
-
-                        tvAppointmentDate.text = "$date at $time"
-                        tvAppointmentServices.text = if (serviceNames.isNotEmpty()) serviceNames.joinToString(", ") else "No services"
-                        tvAppointmentStatus.text = nearest.status.uppercase()
-
-                        when (nearest.status.lowercase()) {
-                            "pending" -> tvAppointmentStatus.setBackgroundColor(android.graphics.Color.parseColor("#FF9800"))
-                            "completed" -> tvAppointmentStatus.setBackgroundColor(android.graphics.Color.parseColor("#4CAF50"))
-                            "cancelled" -> tvAppointmentStatus.setBackgroundColor(android.graphics.Color.parseColor("#F44336"))
-                            "in_progress" -> tvAppointmentStatus.setBackgroundColor(android.graphics.Color.parseColor("#2196F3"))
-                            else -> tvAppointmentStatus.setBackgroundColor(android.graphics.Color.parseColor("#9E9E9E"))
+                        val dateTime = Calendar.getInstance().apply {
+                            this.time = date
+                            set(Calendar.HOUR_OF_DAY, time.hours)
+                            set(Calendar.MINUTE, time.minutes)
+                            set(Calendar.SECOND, time.seconds)
                         }
-                    }
+
+                        if (dateTime.after(now)) appointment to dateTime else null
+                    } catch (e: Exception) { null }
+                }.minByOrNull { it.second.timeInMillis }?.first
+
+                if (nextAppointment != null) {
+                    // Fetch services for this specific appointment
+                    val servicesResponse = supabaseClient.from("appointment_services")
+                        .select { filter { eq("appointment_id", nextAppointment.appointment_id) } }
+                    val appServices = json.decodeFromString<List<AppointmentService>>(servicesResponse.data)
+                    
+                    // Fetch service names
+                    val allServicesResponse = supabaseClient.from("services").select()
+                    val allServices = json.decodeFromString<List<Service>>(allServicesResponse.data)
+                    val serviceNamesMap = allServices.associate { it.service_id to it.service_name }
+                    
+                    val selectedServiceNames = appServices.mapNotNull { serviceNamesMap[it.service_id] }
+
+                    updateAppointmentUI(nextAppointment, selectedServiceNames)
                 } else {
-                    withContext(Dispatchers.Main) {
-                        layoutEmptyAppointments.visibility = android.view.View.VISIBLE
-                        layoutAppointmentDetails.visibility = android.view.View.GONE
-                    }
+                    showEmptyAppointmentState()
                 }
 
             } catch (e: Exception) {
-                Log.e("DashboardActivity", "Error loading nearest appointment: ${e.message}", e)
-                withContext(Dispatchers.Main) {
-                    layoutEmptyAppointments.visibility = android.view.View.VISIBLE
-                    layoutAppointmentDetails.visibility = android.view.View.GONE
-                }
+                Log.e("DashboardActivity", "Error loading appointment: ${e.message}")
+                showEmptyAppointmentState()
             }
+        }
+    }
+
+    private fun updateAppointmentUI(appointment: AppointmentResponse, serviceNames: List<String>) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            layoutEmptyAppointments.visibility = View.GONE
+            layoutAppointmentDetails.visibility = View.VISIBLE
+
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val outputFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+            val timeInputFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+            val timeOutputFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+
+            val formattedDate = try {
+                outputFormat.format(inputFormat.parse(appointment.appointment_date)!!)
+            } catch (e: Exception) { appointment.appointment_date }
+
+            val formattedTime = try {
+                timeOutputFormat.format(timeInputFormat.parse(appointment.appointment_time)!!)
+            } catch (e: Exception) { appointment.appointment_time }
+
+            tvAppointmentDate.text = "$formattedDate at $formattedTime"
+            tvAppointmentServices.text = if (serviceNames.isNotEmpty()) serviceNames.joinToString(", ") else "Standard Service"
+            tvAppointmentStatus.text = appointment.status.uppercase()
+
+            // Update status background color
+            val statusColor = when (appointment.status.lowercase()) {
+                "pending" -> "#FF9800"
+                "in_progress", "in progress" -> "#2196F3"
+                "completed" -> "#4CAF50"
+                else -> "#9E9E9E"
+            }
+            tvAppointmentStatus.setBackgroundColor(android.graphics.Color.parseColor(statusColor))
+        }
+    }
+
+    private fun showEmptyAppointmentState() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            layoutEmptyAppointments.visibility = View.VISIBLE
+            layoutAppointmentDetails.visibility = View.GONE
         }
     }
 
