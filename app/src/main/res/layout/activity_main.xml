@@ -638,6 +638,45 @@
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
+                    <!-- MERCHANT INFO CONTAINER -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/layoutMerchantEWalletInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+                        app:cardBackgroundColor="#E3F2FD"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Pay to:"
+                                android:textColor="#1565C0"
+                                android:textStyle="bold"
+                                android:textSize="14sp" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="LABADA SHOP"
+                                android:textColor="#333"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                android:layout_marginTop="4dp" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="GCash: 0912 345 6789"
+                                android:textColor="#333"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
                     <!-- E-WALLET DETAILS CONTAINER -->
                     <LinearLayout
                         android:id="@+id/layoutEWalletDetails"
