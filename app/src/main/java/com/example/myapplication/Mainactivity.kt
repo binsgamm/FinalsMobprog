@@ -3,14 +3,13 @@ package com.example.myapplication
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.CalendarView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
-import com.google.android.material.textfield.TextInputEditText
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.createSupabaseClient
@@ -20,7 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
 import java.util.*
@@ -50,10 +48,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnPaymentCash: MaterialButton
     private lateinit var btnPaymentEWallet: MaterialButton
 
-    // E-Wallet Details
-    private lateinit var layoutEWalletDetails: LinearLayout
-    private lateinit var etEWalletName: TextInputEditText
-    private lateinit var etEWalletNumber: TextInputEditText
+    // E-Wallet Details (Recipient Info)
+    private lateinit var layoutEWalletRecipientInfo: CardView
 
     // Detergent selection
     private lateinit var toggleGroupDetergent: MaterialButtonToggleGroup
@@ -78,7 +74,7 @@ class MainActivity : AppCompatActivity() {
     // Payment proof (E-Wallet)
     private lateinit var layoutPaymentProof: LinearLayout
     private lateinit var btnUploadProof: MaterialButton
-    private lateinit var cardImagePreview: androidx.cardview.widget.CardView
+    private lateinit var cardImagePreview: CardView
     private lateinit var ivPaymentProof: android.widget.ImageView
     private lateinit var btnRemoveProof: MaterialButton
 
@@ -157,9 +153,7 @@ class MainActivity : AppCompatActivity() {
         btnPaymentCash = findViewById(R.id.btnPaymentCash)
         btnPaymentEWallet = findViewById(R.id.btnPaymentEWallet)
 
-        layoutEWalletDetails = findViewById(R.id.layoutEWalletDetails)
-        etEWalletName = findViewById(R.id.etEWalletName)
-        etEWalletNumber = findViewById(R.id.etEWalletNumber)
+        layoutEWalletRecipientInfo = findViewById(R.id.layoutEWalletRecipientInfo)
 
         toggleGroupDetergent = findViewById(R.id.toggleGroupDetergent)
         btnDetergentOwn = findViewById(R.id.btnDetergentOwn)
@@ -261,7 +255,9 @@ class MainActivity : AppCompatActivity() {
                             val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
                             isPastTime = (slotHour < currentHour)
                         }
-                    } catch (e: Exception) {}
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "Time check error: ${e.message}")
+                    }
                 }
 
                 if (isPastTime) {
@@ -341,14 +337,14 @@ class MainActivity : AppCompatActivity() {
                 selectedPaymentMethod = when (checkedId) {
                     R.id.btnPaymentCash -> {
                         layoutPaymentProof.visibility = View.GONE
-                        layoutEWalletDetails.visibility = View.GONE
+                        layoutEWalletRecipientInfo.visibility = View.GONE
                         paymentProofUri = null
                         paymentProofBase64 = null
                         "Cash"
                     }
                     R.id.btnPaymentEWallet -> {
                         layoutPaymentProof.visibility = View.VISIBLE
-                        layoutEWalletDetails.visibility = View.VISIBLE
+                        layoutEWalletRecipientInfo.visibility = View.VISIBLE
                         "E-Wallet"
                     }
                     else -> null
@@ -399,7 +395,9 @@ class MainActivity : AppCompatActivity() {
                     servicePrices[serviceId] = services[0].price_services
                     withContext(Dispatchers.Main) { updateBookingSummary() }
                 }
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Fetch service price error: ${e.message}")
+            }
         }
     }
 
@@ -409,14 +407,14 @@ class MainActivity : AppCompatActivity() {
         val detergentCost = if (selectedDetergentBrand != null) selectedDetergentQuantity * detergentPricePerUnit else 0.0
         val grandTotal = servicesTotal + detergentCost
 
-        tvServicesTotal.text = "₱${servicesTotal.toInt()}"
+        tvServicesTotal.text = String.format("₱%.0f", servicesTotal)
         if (detergentCost > 0) {
             layoutDetergentCost.visibility = View.VISIBLE
-            tvDetergentCost.text = "₱${detergentCost.toInt()}"
+            tvDetergentCost.text = String.format("₱%.0f", detergentCost)
         } else {
             layoutDetergentCost.visibility = View.GONE
         }
-        tvGrandTotal.text = "₱${grandTotal.toInt()}"
+        tvGrandTotal.text = String.format("₱%.0f", grandTotal)
     }
 
     private fun openImagePicker() {
@@ -425,6 +423,7 @@ class MainActivity : AppCompatActivity() {
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
@@ -439,14 +438,16 @@ class MainActivity : AppCompatActivity() {
                     if (bytes != null) {
                         paymentProofBase64 = android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT)
                     }
-                } catch (e: Exception) {}
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Image process error: ${e.message}")
+                }
             }
         }
     }
 
     private fun updateDetergentTotal() {
         val total = selectedDetergentQuantity * detergentPricePerUnit
-        tvDetergentTotal.text = "Total: ₱${total.toInt()}"
+        tvDetergentTotal.text = String.format("Total: ₱%.0f", total)
         updateBookingSummary()
     }
 
@@ -471,7 +472,9 @@ class MainActivity : AppCompatActivity() {
                     if (count >= MAX_BOOKINGS_PER_SLOT) fullyBookedTimes.add(time)
                 }
                 withContext(Dispatchers.Main) { updateTimeButtons() }
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Time slot availability error: ${e.message}")
+            }
         }
     }
 
@@ -522,29 +525,30 @@ class MainActivity : AppCompatActivity() {
                         btnBookAppointment.text = "Book Appointment"
                     }
                 }
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Load user data error: ${e.message}")
+            }
         }
     }
 
     private fun validateInputs(): Boolean {
         if (!isCustomerDataLoaded || customerId == null) return false
-        if (selectedServices.isEmpty()) return false
-        if (selectedDate == null || selectedTime == null) return false
-        if (selectedDeliveryMethod == null || selectedPaymentMethod == null) return false
+        if (selectedServices.isEmpty()) {
+            Toast.makeText(this, "Please select at least one service", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (selectedDate == null || selectedTime == null) {
+            Toast.makeText(this, "Please select date and time", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (selectedDeliveryMethod == null || selectedPaymentMethod == null) {
+            Toast.makeText(this, "Please select delivery and payment method", Toast.LENGTH_SHORT).show()
+            return false
+        }
 
-        if (selectedPaymentMethod == "E-Wallet") {
-            if (etEWalletName.text.isNullOrBlank()) {
-                etEWalletName.error = "Required"
-                return false
-            }
-            if (etEWalletNumber.text.isNullOrBlank()) {
-                etEWalletNumber.error = "Required"
-                return false
-            }
-            if (paymentProofBase64 == null) {
-                Toast.makeText(this, "Upload payment proof", Toast.LENGTH_SHORT).show()
-                return false
-            }
+        if (selectedPaymentMethod == "E-Wallet" && paymentProofBase64 == null) {
+            Toast.makeText(this, "Please upload payment proof", Toast.LENGTH_SHORT).show()
+            return false
         }
         return true
     }
@@ -571,7 +575,7 @@ class MainActivity : AppCompatActivity() {
                 val appointmentResponse = supabaseClient.from("appointments").insert(appointmentData) { select() }
                 val json = Json { ignoreUnknownKeys = true }
                 val createdAppointments = json.decodeFromString<List<AppointmentResponse>>(appointmentResponse.data)
-                if (createdAppointments.isEmpty()) throw Exception("Failed")
+                if (createdAppointments.isEmpty()) throw Exception("Failed to create appointment")
 
                 val appointmentId = createdAppointments[0].appointment_id
 
@@ -592,8 +596,8 @@ class MainActivity : AppCompatActivity() {
                     payment_status = "pending",
                     amount = totalAmount,
                     proof_image = paymentProofBase64,
-                    account_name = if (selectedPaymentMethod == "E-Wallet") etEWalletName.text.toString() else null,
-                    account_number = if (selectedPaymentMethod == "E-Wallet") etEWalletNumber.text.toString() else null
+                    account_name = null,
+                    account_number = null
                 )
 
                 supabaseClient.from("payments").insert(paymentData)
@@ -606,9 +610,11 @@ class MainActivity : AppCompatActivity() {
                     finish()
                 }
             } catch (e: Exception) {
+                Log.e("MainActivity", "Booking error: ${e.message}")
                 withContext(Dispatchers.Main) {
                     btnBookAppointment.isEnabled = true
                     btnBookAppointment.text = "Book Appointment"
+                    Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }

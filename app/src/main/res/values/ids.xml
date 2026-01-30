@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="tvMessage" type="id" />
-    <item name="etEWalletName" type="id">etEWalletName</item>
-    <item name="etEWalletNumber" type="id">etEWalletNumber</item>
-    <item name="layoutEWalletDetails" type="id">layoutEWalletDetails</item>
 </resources>
