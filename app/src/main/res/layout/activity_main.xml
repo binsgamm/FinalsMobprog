@@ -638,9 +638,9 @@
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                    <!-- MERCHANT INFO CONTAINER -->
+                    <!-- RECIPIENT INFO CONTAINER -->
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/layoutMerchantEWalletInfo"
+                        android:id="@+id/layoutEWalletRecipientInfo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -663,7 +663,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="LABADA SHOP"
+                                android:text="L*B*DA"
                                 android:textColor="#333"
                                 android:textStyle="bold"
                                 android:textSize="16sp"
@@ -671,64 +671,11 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="GCash: 0912 345 6789"
+                                android:text="GCash: 09720452851"
                                 android:textColor="#333"
                                 android:textSize="16sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
-
-                    <!-- E-WALLET DETAILS CONTAINER -->
-                    <LinearLayout
-                        android:id="@+id/layoutEWalletDetails"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:visibility="gone"
-                        android:layout_marginTop="8dp"
-                        android:padding="4dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="E-Wallet Transaction Details"
-                            android:textColor="#D32F2F"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="8dp" />
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/tilEWalletName"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
-                            android:hint="Account Name"
-                            app:boxStrokeColor="#2d58a9"
-                            app:hintTextColor="#2d58a9">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etEWalletName"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="textPersonName" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/tilEWalletNumber"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Account Number (e.g. 09123456789)"
-                            app:boxStrokeColor="#2d58a9"
-                            app:hintTextColor="#2d58a9">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etEWalletNumber"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="phone" />
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </LinearLayout>
 
                     <!-- E-WALLET PAYMENT PROOF -->
                     <LinearLayout
