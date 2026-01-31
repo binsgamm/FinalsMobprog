@@ -103,25 +103,23 @@ data class AppointmentService(
 @Serializable
 data class PaymentInsert(
     val appointment_id: Int,
-    val payment_method: String,
-    val payment_status: String = "pending",
     val amount: Double,
-    val down_payment: Double = 0.0,
-    val remaining_balance: Double = 0.0,
-    val is_down_payment: Boolean = false,
-    val proof_image: String? = null  // Base64 encoded image for E-Wallet payments
+    val payment_method: String?,
+    val proof_image: String? = null,
+    val payment_status: String = "pending", // Correct: matches schema
+    val remaining_balance: Double = 0.0     // Correct: matches schema
 )
-
 @Serializable
 data class Payment(
     val payment_id: Int? = null,
     val appointment_id: Int,
-    val payment_type: String? = null,
     val amount: Double,
     val payment_method: String? = null,
     val proof_image: String? = null,
     val payment_status: String? = null,
-    val verification_date: String? = null
+    val verification_date: String? = null,
+    val remaining_balance: Double? = null // Added this to match schema
+    // REMOVED payment_type because it is not in your SQL schema
 )
 
 // User data for signup

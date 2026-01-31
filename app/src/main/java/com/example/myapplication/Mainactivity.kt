@@ -932,12 +932,10 @@ class MainActivity : AppCompatActivity() {
                     appointment_id = appointmentId,
                     payment_method = selectedPaymentMethod!!,
                     payment_status = "pending",
-                    amount = 0.0, // Will be updated after weighing
-                    proof_image = paymentProofBase64  // Include payment proof for E-Wallet
+                    amount = 0.0,
+                    proof_image = paymentProofBase64
                 )
-
-                supabaseClient.from("payments")
-                    .insert(paymentData)
+                supabaseClient.from("payments").insert(paymentData)
 
                 Log.d("MainActivity", "Payment record created")
                 Log.d("MainActivity", "Payment proof included: ${paymentProofBase64 != null}")
