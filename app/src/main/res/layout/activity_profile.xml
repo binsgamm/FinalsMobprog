@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F6F8FB">
@@ -16,18 +15,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Top Header Section with Gradient -->
+            <!-- Top Header Section -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
                 android:background="@drawable/bg_blue_gradient">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/bg_header"
-                    android:alpha="0.6" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -36,7 +28,6 @@
                     android:orientation="horizontal"
                     android:padding="24dp">
 
-                    <!-- Profile Image Placeholder -->
                     <androidx.cardview.widget.CardView
                         android:layout_width="80dp"
                         android:layout_height="80dp"
@@ -60,16 +51,16 @@
                             android:id="@+id/tvHeaderName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/user_full_name_placeholder"
+                            android:text="Loading..."
                             android:textColor="#FFF"
-                            android:textSize="24sp"
+                            android:textSize="22sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tvHeaderEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/user_email_placeholder"
+                            android:text="Please wait..."
                             android:textColor="#E0E0E0"
                             android:textSize="14sp" />
                     </LinearLayout>
@@ -100,9 +91,9 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/profile_info_title"
+                            android:text="Profile Information"
                             android:textColor="#333"
-                            android:textSize="20sp"
+                            android:textSize="18sp"
                             android:textStyle="bold" />
 
                         <com.google.android.material.button.MaterialButton
@@ -112,197 +103,39 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:backgroundTint="#1E5BFF"
-                            android:text="@string/btn_edit_profile"
+                            android:text="Edit Profile"
                             android:textAllCaps="false"
                             android:textSize="12sp"
                             app:cornerRadius="20dp"
                             app:icon="@android:drawable/ic_menu_edit" />
                     </RelativeLayout>
 
-                    <!-- Info Fields -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_full_name_header"
-                        android:textColor="#777"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        app:drawableStartCompat="@android:drawable/ic_menu_view"
-                        android:drawablePadding="8dp"
-                        app:drawableTint="#777" />
-                    <TextView
-                        android:id="@+id/tvProfileFullName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="20dp"
-                        android:background="@drawable/bg_status_tag"
-                        android:padding="12dp"
-                        android:text="@string/user_full_name_placeholder"
-                        android:textColor="#333" />
+                    <!-- First Name -->
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="FIRST NAME" android:textColor="#777" android:textSize="10sp" android:textStyle="bold" />
+                    <EditText android:id="@+id/etProfileFirstName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_marginBottom="16dp" android:background="@drawable/bg_status_tag" android:padding="12dp" android:enabled="false" android:inputType="textPersonName" android:textColor="#333" android:textSize="14sp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_email"
-                        android:textColor="#777"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        app:drawableStartCompat="@android:drawable/ic_dialog_email"
-                        android:drawablePadding="8dp"
-                        app:drawableTint="#777" />
-                    <TextView
-                        android:id="@+id/tvProfileEmail"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="20dp"
-                        android:background="@drawable/bg_status_tag"
-                        android:padding="12dp"
-                        android:text="@string/user_email_placeholder"
-                        android:textColor="#333" />
+                    <!-- Middle Name -->
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MIDDLE NAME (OPTIONAL)" android:textColor="#777" android:textSize="10sp" android:textStyle="bold" />
+                    <EditText android:id="@+id/etProfileMiddleName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_marginBottom="16dp" android:background="@drawable/bg_status_tag" android:padding="12dp" android:enabled="false" android:inputType="textPersonName" android:textColor="#333" android:textSize="14sp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_phone"
-                        android:textColor="#777"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        app:drawableStartCompat="@android:drawable/stat_sys_phone_call"
-                        android:drawablePadding="8dp"
-                        app:drawableTint="#777" />
-                    <TextView
-                        android:id="@+id/tvProfilePhone"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="20dp"
-                        android:background="@drawable/bg_status_tag"
-                        android:padding="12dp"
-                        android:text="@string/user_phone_placeholder"
-                        android:textColor="#333" />
+                    <!-- Last Name -->
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="LAST NAME" android:textColor="#777" android:textSize="10sp" android:textStyle="bold" />
+                    <EditText android:id="@+id/etProfileLastName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_marginBottom="16dp" android:background="@drawable/bg_status_tag" android:padding="12dp" android:enabled="false" android:inputType="textPersonName" android:textColor="#333" android:textSize="14sp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_address"
-                        android:textColor="#777"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        app:drawableStartCompat="@android:drawable/ic_menu_mylocation"
-                        android:drawablePadding="8dp"
-                        app:drawableTint="#777" />
-                    <TextView
-                        android:id="@+id/tvProfileAddress"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:background="@drawable/bg_status_tag"
-                        android:padding="12dp"
-                        android:text="@string/user_address_placeholder"
-                        android:textColor="#333" />
+                    <!-- Email (Non-editable) -->
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="EMAIL ADDRESS" android:textColor="#777" android:textSize="10sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/tvProfileEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_marginBottom="16dp" android:background="@drawable/bg_status_tag" android:padding="12dp" android:textColor="#999" android:textSize="14sp" />
+
+                    <!-- Phone -->
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PHONE NUMBER" android:textColor="#777" android:textSize="10sp" android:textStyle="bold" />
+                    <EditText android:id="@+id/etProfilePhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_marginBottom="16dp" android:background="@drawable/bg_status_tag" android:padding="12dp" android:enabled="false" android:inputType="phone" android:textColor="#333" android:textSize="14sp" />
+
+                    <!-- Address -->
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HOME ADDRESS" android:textColor="#777" android:textSize="10sp" android:textStyle="bold" />
+                    <EditText android:id="@+id/etProfileAddress" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:background="@drawable/bg_status_tag" android:padding="12dp" android:enabled="false" android:inputType="textPostalAddress" android:textColor="#333" android:textSize="14sp" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-
-            <!-- Bottom Status Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal"
-                android:paddingHorizontal="12dp">
-
-                <!-- Email Verified -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_margin="4dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@android:drawable/checkbox_on_background"
-                            app:tint="#4CAF50" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/status_email_verified"
-                            android:textColor="#333"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <!-- Phone Verified -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_margin="4dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@android:drawable/stat_sys_speakerphone"
-                            app:tint="#4CAF50" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/status_phone_verified"
-                            android:textColor="#333"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <!-- Address Set -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_margin="4dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_directions"
-                            app:tint="#2d58a9" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/status_default_address"
-                            android:textColor="#333"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-            </LinearLayout>
 
             <!-- Logout Button -->
             <com.google.android.material.button.MaterialButton
@@ -311,16 +144,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="32dp"
+                android:layout_marginVertical="32dp"
                 android:backgroundTint="#FF5252"
                 android:padding="16dp"
-                android:text="@string/btn_logout"
+                android:text="Logout"
                 android:textAllCaps="false"
-                android:textSize="16sp"
                 app:cornerRadius="16dp"
                 app:icon="@android:drawable/ic_lock_power_off"
-                app:iconGravity="textStart"
-                app:iconPadding="12dp" />
+                app:iconGravity="textStart" />
 
         </LinearLayout>
     </ScrollView>

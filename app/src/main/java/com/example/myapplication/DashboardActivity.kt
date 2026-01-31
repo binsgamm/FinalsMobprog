@@ -109,8 +109,7 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         btnProfile.setOnClickListener {
-            // TODO: Navigate to profile
-            Toast.makeText(this, "Profile coming soon!", Toast.LENGTH_SHORT).show()
+            navigateToProfile()
         }
     }
 
