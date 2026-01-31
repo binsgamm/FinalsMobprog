@@ -6,11 +6,15 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 
 object supabaseClient {
+    // Using the stable key from your project and adding session persistence
     val supabase = createSupabaseClient(
         supabaseUrl = "https://mxxyzcoevcsniinvleos.supabase.co",
-        supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14eHl6Y29ldmNzbmlpbnZsZW9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMDQ5NDQsImV4cCI6MjA4Mzg4MDk0NH0.1kuZLURUD68d2xcbRtEIOkzIyqdX4XYcVGaMvt7ui6s"
+        supabaseKey = "sb_publishable_pdEutnY70rVI_FVG6Casaw_03co6UQR"
     ) {
         install(Postgrest)
-        install(Auth)
+        install(Auth) {
+            autoLoadFromStorage = true
+            alwaysAutoRefresh = true
+        }
     }
 }

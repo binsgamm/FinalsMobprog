@@ -109,17 +109,17 @@ data class PaymentInsert(
     val payment_status: String = "pending", // Correct: matches schema
     val remaining_balance: Double = 0.0     // Correct: matches schema
 )
+
 @Serializable
 data class Payment(
     val payment_id: Int? = null,
     val appointment_id: Int,
+    val payment_type: String? = null,
     val amount: Double,
     val payment_method: String? = null,
     val proof_image: String? = null,
     val payment_status: String? = null,
-    val verification_date: String? = null,
-    val remaining_balance: Double? = null // Added this to match schema
-    // REMOVED payment_type because it is not in your SQL schema
+    val verification_date: String? = null
 )
 
 // User data for signup

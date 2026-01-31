@@ -252,19 +252,14 @@ class AppointmentsActivity : AppCompatActivity() {
                     val refreshedList = json.decodeFromString<List<AppointmentResponse>>(refreshedResponse.data)
                     Log.d("AppointmentsActivity", "Refreshed list has ${refreshedList.size} appointments")
 
-                    // Sort the refreshed list
+                    // Sort the refreshed list: In Progress first, then by closest date
                     val sortedRefreshedList = refreshedList.sortedWith(
                         compareBy<AppointmentResponse> {
-                            when (it.status.lowercase()) {
-                                "pending" -> 0
-                                "in_progress" -> 1
-                                "completed" -> 2
-                                "cancelled" -> 3
-                                else -> 4
-                            }
+                            val status = it.status.lowercase().replace("_", " ")
+                            if (status == "in progress") 0 else 1
                         }
-                            .thenByDescending { it.appointment_date }
-                            .thenByDescending { it.appointment_time }
+                            .thenBy { it.appointment_date }
+                            .thenBy { it.appointment_time }
                     )
 
                     if (sortedRefreshedList.isEmpty()) {
@@ -351,19 +346,14 @@ class AppointmentsActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                // Sort by status priority (pending first), then by date/time (newest first)
+                // Sort by status priority (In Progress first), then by date/time (closest date first)
                 val sortedAppointmentsList = appointmentsList.sortedWith(
                     compareBy<AppointmentResponse> {
-                        when (it.status.lowercase()) {
-                            "pending" -> 0
-                            "in_progress" -> 1
-                            "completed" -> 2
-                            "cancelled" -> 3
-                            else -> 4
-                        }
+                        val status = it.status.lowercase().replace("_", " ")
+                        if (status == "in progress") 0 else 1
                     }
-                        .thenByDescending { it.appointment_date }
-                        .thenByDescending { it.appointment_time }
+                        .thenBy { it.appointment_date }
+                        .thenBy { it.appointment_time }
                 )
 
                 Log.d("AppointmentsActivity", "Found ${sortedAppointmentsList.size} appointments")

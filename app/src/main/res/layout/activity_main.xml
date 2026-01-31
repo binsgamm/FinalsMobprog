@@ -11,7 +11,8 @@
         android:layout_height="300dp"
         android:scaleType="centerCrop"
         android:src="@drawable/bg_header"
-        android:alpha="0.6" />
+        android:alpha="0.6"
+        android:contentDescription="@null" />
 
     <!-- Bottom Decorative Background -->
     <ImageView
@@ -21,7 +22,8 @@
         android:scaleType="centerCrop"
         android:src="@drawable/bg_header"
         android:rotation="180"
-        android:alpha="0.4" />
+        android:alpha="0.4"
+        android:contentDescription="@null" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -82,7 +84,7 @@
                         android:textSize="22sp"
                         android:textStyle="bold" />
 
-                    <!-- SERVICES (Express removed - only 3 services) -->
+                    <!-- SERVICES -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -107,11 +109,11 @@
                             android:checkable="true"
                             android:text="🧺 Wash and Fold - ₱50"
                             android:textAllCaps="false"
-                            android:textColor="@color/service_button_text"
+                            android:textColor="@color/service_button_text_unchecked"
                             android:textSize="14sp"
-                            app:backgroundTint="@color/service_button_background"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -124,11 +126,11 @@
                             android:checkable="true"
                             android:text="👔 Dry Cleaning - ₱80"
                             android:textAllCaps="false"
-                            android:textColor="@color/service_button_text"
+                            android:textColor="@color/service_button_text_unchecked"
                             android:textSize="14sp"
-                            app:backgroundTint="@color/service_button_background"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -140,11 +142,11 @@
                             android:checkable="true"
                             android:text="👕 Ironing - ₱40"
                             android:textAllCaps="false"
-                            android:textColor="@color/service_button_text"
+                            android:textColor="@color/service_button_text_unchecked"
                             android:textSize="14sp"
-                            app:backgroundTint="@color/service_button_background"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
                     </LinearLayout>
 
@@ -248,10 +250,10 @@
                             android:minHeight="48dp"
                             android:checkable="true"
                             android:text="9:00 AM"
-                            android:textColor="@color/time_button_text"
-                            app:backgroundTint="@color/time_button_background"
+                            android:textColor="@color/time_button_text_unchecked"
+                            app:backgroundTint="@color/time_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/time_button_stroke"
+                            app:strokeColor="@color/time_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -266,10 +268,10 @@
                             android:minHeight="48dp"
                             android:checkable="true"
                             android:text="11:30 AM"
-                            android:textColor="@color/time_button_text"
-                            app:backgroundTint="@color/time_button_background"
+                            android:textColor="@color/time_button_text_unchecked"
+                            app:backgroundTint="@color/time_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/time_button_stroke"
+                            app:strokeColor="@color/time_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -284,10 +286,10 @@
                             android:minHeight="48dp"
                             android:checkable="true"
                             android:text="2:00 PM"
-                            android:textColor="@color/time_button_text"
-                            app:backgroundTint="@color/time_button_background"
+                            android:textColor="@color/time_button_text_unchecked"
+                            app:backgroundTint="@color/time_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/time_button_stroke"
+                            app:strokeColor="@color/time_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -302,10 +304,10 @@
                             android:minHeight="48dp"
                             android:checkable="true"
                             android:text="4:30 PM"
-                            android:textColor="@color/time_button_text"
-                            app:backgroundTint="@color/time_button_background"
+                            android:textColor="@color/time_button_text_unchecked"
+                            app:backgroundTint="@color/time_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/time_button_stroke"
+                            app:strokeColor="@color/time_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -320,14 +322,14 @@
                             android:minHeight="48dp"
                             android:checkable="true"
                             android:text="7:00 PM"
-                            android:textColor="@color/time_button_text"
-                            app:backgroundTint="@color/time_button_background"
+                            android:textColor="@color/time_button_text_unchecked"
+                            app:backgroundTint="@color/time_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/time_button_stroke"
+                            app:strokeColor="@color/time_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
                     </GridLayout>
 
-                    <!-- INFO NOTE ABOUT MACHINE ASSIGNMENT -->
+                    <!-- INFO NOTE -->
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -360,7 +362,7 @@
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
-                    <!-- DETERGENT ADD-ON -->
+                    <!-- DETERGENT -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -385,10 +387,10 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="Own"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -399,14 +401,14 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="Add-Ons"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                    <!-- BRAND SELECTION (Initially Hidden) -->
+                    <!-- BRAND SELECTION -->
                     <LinearLayout
                         android:id="@+id/layoutBrandSelection"
                         android:layout_width="match_parent"
@@ -441,10 +443,10 @@
                                 android:minHeight="48dp"
                                 android:text="Brand X"
                                 android:textSize="12sp"
-                                android:textColor="@color/service_button_text"
-                                app:backgroundTint="@color/service_button_background"
+                                android:textColor="@color/service_button_text_unchecked"
+                                app:backgroundTint="@color/service_button_unchecked"
                                 app:cornerRadius="12dp"
-                                app:strokeColor="@color/service_button_stroke"
+                                app:strokeColor="@color/service_button_stroke_unchecked"
                                 app:strokeWidth="2dp" />
 
                             <com.google.android.material.button.MaterialButton
@@ -456,10 +458,10 @@
                                 android:minHeight="48dp"
                                 android:text="Brand Y"
                                 android:textSize="12sp"
-                                android:textColor="@color/service_button_text"
-                                app:backgroundTint="@color/service_button_background"
+                                android:textColor="@color/service_button_text_unchecked"
+                                app:backgroundTint="@color/service_button_unchecked"
                                 app:cornerRadius="12dp"
-                                app:strokeColor="@color/service_button_stroke"
+                                app:strokeColor="@color/service_button_stroke_unchecked"
                                 app:strokeWidth="2dp" />
 
                             <com.google.android.material.button.MaterialButton
@@ -471,14 +473,13 @@
                                 android:minHeight="48dp"
                                 android:text="Brand Z"
                                 android:textSize="12sp"
-                                android:textColor="@color/service_button_text"
-                                app:backgroundTint="@color/service_button_background"
+                                android:textColor="@color/service_button_text_unchecked"
+                                app:backgroundTint="@color/service_button_unchecked"
                                 app:cornerRadius="12dp"
-                                app:strokeColor="@color/service_button_stroke"
+                                app:strokeColor="@color/service_button_stroke_unchecked"
                                 app:strokeWidth="2dp" />
                         </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                        <!-- QUANTITY SELECTION -->
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -533,7 +534,6 @@
                                 app:strokeWidth="2dp" />
                         </LinearLayout>
 
-                        <!-- TOTAL DISPLAY -->
                         <TextView
                             android:id="@+id/tvDetergentTotal"
                             android:layout_width="match_parent"
@@ -546,7 +546,7 @@
                             android:layout_marginBottom="8dp" />
                     </LinearLayout>
 
-                    <!-- DELIVERY -->
+                    <!-- DELIVERY METHOD -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -572,10 +572,10 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="Drop Off"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -586,14 +586,14 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="Pickup"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                    <!-- PAYMENT -->
+                    <!-- PAYMENT METHOD -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -619,10 +619,10 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="Cash"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -633,21 +633,60 @@
                             android:layout_weight="1"
                             android:minHeight="48dp"
                             android:text="E-Wallet"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="@color/service_button_text_unchecked"
+                            app:backgroundTint="@color/service_button_unchecked"
                             app:cornerRadius="12dp"
-                            app:strokeColor="@color/service_button_stroke"
+                            app:strokeColor="@color/service_button_stroke_unchecked"
                             app:strokeWidth="2dp" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                    <!-- E-WALLET PAYMENT PROOF (Initially Hidden) -->
+                    <!-- RECIPIENT INFO CONTAINER -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/layoutEWalletRecipientInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+                        app:cardBackgroundColor="#E3F2FD"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Pay to:"
+                                android:textColor="#1565C0"
+                                android:textStyle="bold"
+                                android:textSize="14sp" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="L*B*DA"
+                                android:textColor="#333"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                android:layout_marginTop="4dp" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="GCash: 09720452851"
+                                android:textColor="#333"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- E-WALLET PAYMENT PROOF -->
                     <LinearLayout
                         android:id="@+id/layoutPaymentProof"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:visibility="gone"
-                        android:layout_marginTop="12dp">
+                        android:layout_marginTop="16dp">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -672,8 +711,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="📷 Choose Image"
-                            android:textColor="@color/service_button_text"
-                            app:backgroundTint="@color/service_button_background"
+                            android:textColor="#2d58a9"
+                            app:backgroundTint="#FFFFFF"
                             app:cornerRadius="12dp"
                             app:strokeColor="#2d58a9"
                             app:strokeWidth="2dp"
@@ -749,7 +788,6 @@
                                 android:textStyle="bold"
                                 android:layout_marginBottom="12dp" />
 
-                            <!-- Services Cost -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -774,7 +812,6 @@
                                     android:textStyle="bold" />
                             </LinearLayout>
 
-                            <!-- Detergent Cost -->
                             <LinearLayout
                                 android:id="@+id/layoutDetergentCost"
                                 android:layout_width="match_parent"
@@ -801,7 +838,6 @@
                                     android:textStyle="bold" />
                             </LinearLayout>
 
-                            <!-- Divider -->
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
@@ -809,7 +845,6 @@
                                 android:layout_marginTop="8dp"
                                 android:layout_marginBottom="8dp" />
 
-                            <!-- Total -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -834,7 +869,6 @@
                                     android:textStyle="bold" />
                             </LinearLayout>
 
-                            <!-- Note about 8kg max -->
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
