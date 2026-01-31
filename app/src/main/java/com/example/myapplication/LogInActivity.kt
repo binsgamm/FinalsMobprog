@@ -12,9 +12,8 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
-import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.auth.providers.builtin.Email
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -29,22 +28,7 @@ class LogInActivity : AppCompatActivity() {
     private lateinit var tvSignUp: MaterialTextView
     private var isNavigating = false
 
-    // Supabase client - same as in SignUpActivity
-    private val supabaseClient: SupabaseClient by lazy {
-        createSupabaseClient(
-            supabaseUrl = "https://mxxyzcoevcsniinvleos.supabase.co",
-            supabaseKey = "sb_publishable_pdEutnY70rVI_FVG6Casaw_03co6UQR"
-        ) {
-            install(io.github.jan.supabase.postgrest.Postgrest)
-            install(io.github.jan.supabase.auth.Auth)
-
-            // ADD THIS for session persistence:
-            install(io.github.jan.supabase.auth.Auth) {
-                alwaysAutoRefresh = true
-                autoLoadFromStorage = true
-            }
-        }
-    }
+    // Supabase client is now handled by SupabaseManager Singleton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +38,7 @@ class LogInActivity : AppCompatActivity() {
         setupClickListeners()
         setTextColors()
 
-        // Check if user is already logged in
+        // Check if user is already logged in using the Singleton
         checkExistingSession()
     }
 
@@ -70,7 +54,6 @@ class LogInActivity : AppCompatActivity() {
             hideKeyboard()
             if (validateInputs()) {
                 performLogin()
-
             }
         }
 
@@ -120,24 +103,22 @@ class LogInActivity : AppCompatActivity() {
             try {
                 Log.d("LogInActivity", "Attempting login for: $email")
 
-                // Sign in with Supabase Auth
-                val session = supabaseClient.auth.signInWith(
-                    io.github.jan.supabase.auth.providers.builtin.Email
-                ) {
+                // Sign in with Supabase Auth using the Singleton Client
+                val session = SupabaseManager.client.auth.signInWith(Email) {
                     this.email = email
                     this.password = password
                 }
 
-                // Get current user IMMEDIATELY after login
-                val currentUser = supabaseClient.auth.currentUserOrNull()
+                // Get current user IMMEDIATELY after login from Singleton
+                val currentUser = SupabaseManager.client.auth.currentUserOrNull()
 
                 Log.d("LogInActivity", "Login successful. User ID: ${currentUser?.id}")
                 Log.d("LogInActivity", "User Email: ${currentUser?.email}")
                 Log.d("LogInActivity", "Session: $session")
 
-                // Wait a moment and check session again
+                // Wait a moment and check session again (Preserving your original logic)
                 delay(500)
-                val refreshedUser = supabaseClient.auth.currentUserOrNull()
+                val refreshedUser = SupabaseManager.client.auth.currentUserOrNull()
                 Log.d("LogInActivity", "Refreshed User after delay: ${refreshedUser?.id}")
 
                 withContext(Dispatchers.Main) {
@@ -190,9 +171,9 @@ class LogInActivity : AppCompatActivity() {
     private fun checkExistingSession() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Get current session
-                val currentSession = supabaseClient.auth.currentSessionOrNull()
-                val currentUser = supabaseClient.auth.currentUserOrNull()
+                // Get current session from Singleton
+                val currentSession = SupabaseManager.client.auth.currentSessionOrNull()
+                val currentUser = SupabaseManager.client.auth.currentUserOrNull()
 
                 if (currentSession != null && currentUser != null) {
                     Log.d("LogInActivity", "User already logged in: ${currentUser.email}")

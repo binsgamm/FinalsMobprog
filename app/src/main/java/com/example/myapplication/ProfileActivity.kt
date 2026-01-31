@@ -8,10 +8,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
-import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
-import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.filter
@@ -20,9 +18,6 @@ import kotlinx.serialization.json.Json
 
 class ProfileActivity : AppCompatActivity() {
 
-    private val TAG = "ProfileActivity"
-
-    // Views
     private lateinit var tvHeaderName: TextView
     private lateinit var tvHeaderEmail: TextView
     private lateinit var etFirstName: EditText
@@ -37,28 +32,11 @@ class ProfileActivity : AppCompatActivity() {
     private var isEditMode = false
     private var userId: String? = null
 
-    // Initialize Supabase
-    private val supabaseClient: SupabaseClient by lazy {
-        createSupabaseClient(
-            supabaseUrl = "https://mxxyzcoevcsniinvleos.supabase.co",
-            supabaseKey = "sb_publishable_pdEutnY70rVI_FVG6Casaw_03co6UQR"
-        ) {
-            install(io.github.jan.supabase.postgrest.Postgrest)
-            install(io.github.jan.supabase.auth.Auth) {
-                autoLoadFromStorage = true
-                alwaysAutoRefresh = true
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
-
         initializeViews()
         setupListeners()
-
-        // Start the intelligent loading process
         loadProfile()
     }
 
@@ -76,139 +54,81 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        btnEditSave.setOnClickListener {
-            if (isEditMode) saveProfile() else toggleEditMode(true)
-        }
+        btnEditSave.setOnClickListener { if (isEditMode) saveProfile() else toggleEditMode(true) }
         btnLogout.setOnClickListener { handleLogout() }
     }
 
     private fun loadProfile() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // STRATEGY: Instead of a fixed delay, wait for the Auth status to be Authenticated
-                Log.d(TAG, "Waiting for Auth session to initialize...")
-
-                // Wait until the session status is Authenticated or times out after 5 seconds
-                withTimeoutOrNull(5000) {
-                    supabaseClient.auth.sessionStatus.filter { it is SessionStatus.Authenticated }.first()
+                // Wait for Auth
+                if (SupabaseManager.client.auth.sessionStatus.value !is SessionStatus.Authenticated) {
+                    SupabaseManager.client.auth.sessionStatus.filter { it is SessionStatus.Authenticated }.first()
                 }
 
-                userId = supabaseClient.auth.currentUserOrNull()?.id
-
-                if (userId == null) {
-                    Log.e(TAG, "Auth failed: No user found after waiting.")
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@ProfileActivity, "Please log in again", Toast.LENGTH_LONG).show()
-                        handleLogout()
-                    }
-                    return@launch
-                }
-
-                Log.d(TAG, "Auth success. Querying data for: $userId")
-
-                // Query Database
-                val response = supabaseClient.from("customers").select {
-                    filter { eq("user_id", userId!!) }
-                }
-
-                Log.d(TAG, "Raw Response: ${response.data}")
-
-                val json = Json { ignoreUnknownKeys = true }
-                val customerList = json.decodeFromString<List<Customer>>(response.data)
-
-                if (customerList.isNotEmpty()) {
-                    val c = customerList[0]
-                    withContext(Dispatchers.Main) {
-                        updateUI(c)
-                    }
-                } else {
-                    Log.e(TAG, "Data exists in DB but RLS is blocking the query.")
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@ProfileActivity, "Database Access Denied (Check RLS)", Toast.LENGTH_LONG).show()
+                userId = SupabaseManager.client.auth.currentUserOrNull()?.id
+                if (userId != null) {
+                    val res = SupabaseManager.client.from("customers").select { filter { eq("user_id", userId!!) } }
+                    val data = Json { ignoreUnknownKeys = true }.decodeFromString<List<Customer>>(res.data)
+                    if (data.isNotEmpty()) {
+                        val c = data[0]
+                        withContext(Dispatchers.Main) { updateUI(c) }
                     }
                 }
-
-            } catch (e: Exception) {
-                Log.e(TAG, "Loading Error: ${e.localizedMessage}")
-            }
+            } catch (e: Exception) { Log.e("Profile", "Load error") }
         }
     }
 
     private fun updateUI(c: Customer) {
-        val fullName = "${c.f_name} ${c.l_name}"
-        tvHeaderName.text = fullName
-        tvHeaderEmail.text = c.email ?: "No Email"
+        tvHeaderName.text = "${c.f_name} ${c.l_name}"
+        tvHeaderEmail.text = c.email ?: "N/A"
         etFirstName.setText(c.f_name)
         etMiddleName.setText(c.m_name ?: "")
         etLastName.setText(c.l_name)
-        tvEmail.text = c.email ?: "No Email"
+        tvEmail.text = c.email ?: "N/A"
         etPhone.setText(c.phone_num ?: "")
         etAddress.setText(c.address ?: "")
     }
 
     private fun toggleEditMode(enabled: Boolean) {
         isEditMode = enabled
-        val fields = listOf(etFirstName, etMiddleName, etLastName, etPhone, etAddress)
-        fields.forEach { it.isEnabled = enabled }
-
-        if (enabled) {
-            btnEditSave.text = "Save Changes"
-            btnEditSave.setIconResource(android.R.drawable.ic_menu_save)
-        } else {
-            btnEditSave.text = "Edit Profile"
-            btnEditSave.setIconResource(android.R.drawable.ic_menu_edit)
-        }
+        listOf(etFirstName, etMiddleName, etLastName, etPhone, etAddress).forEach { it.isEnabled = enabled }
+        btnEditSave.text = if (enabled) "Save Changes" else "Edit Profile"
+        btnEditSave.setIconResource(if (enabled) android.R.drawable.ic_menu_save else android.R.drawable.ic_menu_edit)
     }
 
     private fun saveProfile() {
-        val fName = etFirstName.text.toString().trim()
-        val mName = etMiddleName.text.toString().trim()
-        val lName = etLastName.text.toString().trim()
-        val phone = etPhone.text.toString().trim()
-        val address = etAddress.text.toString().trim()
+        val updates = mapOf(
+            "f_name" to etFirstName.text.toString().trim(),
+            "m_name" to etMiddleName.text.toString().trim().ifEmpty { null },
+            "l_name" to etLastName.text.toString().trim(),
+            "phone_num" to etPhone.text.toString().trim(),
+            "address" to etAddress.text.toString().trim()
+        )
+        if (updates["f_name"].isNullOrEmpty() || updates["l_name"].isNullOrEmpty()) {
+            Toast.makeText(this, "First/Last name required", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         btnEditSave.isEnabled = false
-        btnEditSave.text = "Saving..."
-
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                supabaseClient.from("customers").update(
-                    mapOf(
-                        "f_name" to fName,
-                        "m_name" to if (mName.isEmpty()) null else mName,
-                        "l_name" to lName,
-                        "phone_num" to phone,
-                        "address" to address
-                    )
-                ) { filter { eq("user_id", userId!!) } }
-
+                SupabaseManager.client.from("customers").update(updates) { filter { eq("user_id", userId!!) } }
                 withContext(Dispatchers.Main) {
                     toggleEditMode(false)
                     btnEditSave.isEnabled = true
-                    tvHeaderName.text = "$fName $lName"
-                    Toast.makeText(this@ProfileActivity, "Profile Updated!", Toast.LENGTH_SHORT).show()
+                    tvHeaderName.text = "${updates["f_name"]} ${updates["l_name"]}"
+                    Toast.makeText(this@ProfileActivity, "Saved!", Toast.LENGTH_SHORT).show()
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Update failed: ${e.message}")
-                withContext(Dispatchers.Main) {
-                    btnEditSave.isEnabled = true
-                    Toast.makeText(this@ProfileActivity, "Update Failed", Toast.LENGTH_SHORT).show()
-                }
-            }
+            } catch (e: Exception) { withContext(Dispatchers.Main) { btnEditSave.isEnabled = true } }
         }
     }
 
     private fun handleLogout() {
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                supabaseClient.auth.signOut()
-                withContext(Dispatchers.Main) {
-                    val intent = Intent(this@ProfileActivity, LogInActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish()
-                }
-            } catch (e: Exception) { Log.e(TAG, "Logout error") }
+            SupabaseManager.client.auth.signOut()
+            startActivity(Intent(this@ProfileActivity, LogInActivity::class.java).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK })
+            finish()
         }
     }
 }
