@@ -19,14 +19,6 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp">
 
-            <TextView
-                android:id="@+id/tvAdminServiceType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Wash &amp; Fold"
-                android:textColor="#333"
-                android:textSize="18sp"
-                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvAdminStatus"
@@ -68,6 +60,12 @@
                 android:textColor="#333" />
         </LinearLayout>
 
+        <!-- PHONE NUMBER (NEW) -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
+            <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Phone:" android:textColor="#777" android:textStyle="bold" />
+            <TextView android:id="@+id/tvAdminCustomerPhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="+63 912 345 6789" android:textColor="#2d58a9" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,6 +83,12 @@
                 android:layout_height="wrap_content"
                 android:text="Jan 25, 2026 - 09:00 AM"
                 android:textColor="#333" />
+        </LinearLayout>
+
+        <!-- SERVICES (MOVED HERE) -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
+            <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Services:" android:textColor="#777" android:textStyle="bold" />
+            <TextView android:id="@+id/tvAdminServices" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wash and Fold" android:textColor="#D32F2F" android:textStyle="italic" />
         </LinearLayout>
 
         <LinearLayout

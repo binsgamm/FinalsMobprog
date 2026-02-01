@@ -127,6 +127,7 @@ data class Payment(
 data class AdminAppointmentDetails(
     val appointment: AppointmentResponse,
     val customerName: String,
+    val customerPhone: String,
     val services: String,
     val payment: Payment?
 )
