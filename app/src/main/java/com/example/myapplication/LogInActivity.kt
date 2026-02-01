@@ -14,6 +14,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -28,8 +29,6 @@ class LogInActivity : AppCompatActivity() {
     private lateinit var tvSignUp: MaterialTextView
     private var isNavigating = false
 
-    // Supabase client is now handled by SupabaseManager Singleton
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -38,7 +37,7 @@ class LogInActivity : AppCompatActivity() {
         setupClickListeners()
         setTextColors()
 
-        // Check if user is already logged in using the Singleton
+        // Check if user is already logged in
         checkExistingSession()
     }
 
@@ -65,14 +64,11 @@ class LogInActivity : AppCompatActivity() {
     private fun validateInputs(): Boolean {
         val email = etEmail.text.toString().trim().lowercase()
         val password = etPassword.text.toString()
-
         var isValid = true
 
-        // Clear previous errors
         etEmail.error = null
         etPassword.error = null
 
-        // Email validation
         if (email.isEmpty()) {
             etEmail.error = "Email is required"
             isValid = false
@@ -81,7 +77,6 @@ class LogInActivity : AppCompatActivity() {
             isValid = false
         }
 
-        // Password validation
         if (password.isEmpty()) {
             etPassword.error = "Password is required"
             isValid = false
@@ -95,75 +90,68 @@ class LogInActivity : AppCompatActivity() {
 
     private fun performLogin() {
         showLoading(true)
-
         val email = etEmail.text.toString().trim().lowercase()
         val password = etPassword.text.toString()
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Log.d("LogInActivity", "Attempting login for: $email")
-
-                // Sign in with Supabase Auth using the Singleton Client
-                val session = SupabaseManager.client.auth.signInWith(Email) {
+                // 1. Authenticate with Supabase
+                SupabaseManager.client.auth.signInWith(Email) {
                     this.email = email
                     this.password = password
                 }
 
-                // Get current user IMMEDIATELY after login from Singleton
                 val currentUser = SupabaseManager.client.auth.currentUserOrNull()
 
-                Log.d("LogInActivity", "Login successful. User ID: ${currentUser?.id}")
-                Log.d("LogInActivity", "User Email: ${currentUser?.email}")
-                Log.d("LogInActivity", "Session: $session")
-
-                // Wait a moment and check session again (Preserving your original logic)
-                delay(500)
-                val refreshedUser = SupabaseManager.client.auth.currentUserOrNull()
-                Log.d("LogInActivity", "Refreshed User after delay: ${refreshedUser?.id}")
-
-                withContext(Dispatchers.Main) {
-                    showLoading(false)
-
-                    if (currentUser != null) {
-                        Toast.makeText(
-                            this@LogInActivity,
-                            "Login successful! Welcome ${currentUser.email}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
-                        // Navigate to DashboardActivity WITH user ID
-                        navigateToDashboard(currentUser.id)
-                    } else {
-                        Toast.makeText(
-                            this@LogInActivity,
-                            "Login succeeded but no user session found",
-                            Toast.LENGTH_LONG
-                        ).show()
+                if (currentUser != null) {
+                    // 2. Check user role and navigate
+                    checkUserRoleAndNavigate(currentUser.id, currentUser.email ?: "")
+                } else {
+                    withContext(Dispatchers.Main) {
+                        showLoading(false)
+                        Toast.makeText(this@LogInActivity, "Session not found", Toast.LENGTH_SHORT).show()
                     }
                 }
 
             } catch (e: Exception) {
-                Log.e("LogInActivity", "Login error: ${e.message}", e)
-
+                Log.e("LogInActivity", "Login error: ${e.message}")
                 withContext(Dispatchers.Main) {
                     showLoading(false)
-
-                    val errorMessage = when {
-                        e.message?.contains("Invalid login credentials") == true ->
-                            "Invalid email or password"
-                        e.message?.contains("Email not confirmed") == true ->
-                            "Please verify your email first"
-                        e.message?.contains("rate limit") == true ->
-                            "Too many attempts. Please try again later"
-                        else -> "Login failed: ${e.message ?: "Unknown error"}"
-                    }
-
-                    Toast.makeText(
-                        this@LogInActivity,
-                        errorMessage,
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(this@LogInActivity, "Login failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
                 }
+            }
+        }
+    }
+
+    /**
+     * CORE LOGIC: Differentiates between Admin and Customer
+     */
+    private suspend fun checkUserRoleAndNavigate(userId: String, email: String) {
+        try {
+            // Query the admins table to see if this user_id exists there
+            val adminCheck = SupabaseManager.client.from("admins").select {
+                filter { eq("user_id", userId) }
+            }
+
+            // If the response data is not "[]", the user is an admin
+            val isAdmin = adminCheck.data != "[]" && adminCheck.data.length > 5
+
+            withContext(Dispatchers.Main) {
+                showLoading(false)
+                if (isAdmin) {
+                    Log.d("LogInActivity", "Admin detected. Navigating to Admin Panel.")
+                    navigateToAdmin(userId)
+                } else {
+                    Log.d("LogInActivity", "Customer detected. Navigating to Dashboard.")
+                    navigateToCustomer(userId, email)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("LogInActivity", "Role check failed: ${e.message}")
+            withContext(Dispatchers.Main) {
+                showLoading(false)
+                // Fallback to customer dashboard if check fails
+                navigateToCustomer(userId, email)
             }
         }
     }
@@ -171,56 +159,53 @@ class LogInActivity : AppCompatActivity() {
     private fun checkExistingSession() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Get current session from Singleton
-                val currentSession = SupabaseManager.client.auth.currentSessionOrNull()
                 val currentUser = SupabaseManager.client.auth.currentUserOrNull()
-
-                if (currentSession != null && currentUser != null) {
-                    Log.d("LogInActivity", "User already logged in: ${currentUser.email}")
-
-                    withContext(Dispatchers.Main) {
-                        // Navigate directly to DashboardActivity WITH user ID
-                        navigateToDashboard(currentUser.id)
-                    }
+                if (currentUser != null) {
+                    checkUserRoleAndNavigate(currentUser.id, currentUser.email ?: "")
                 }
             } catch (e: Exception) {
-                Log.e("LogInActivity", "Session check error: ${e.message}")
+                Log.e("LogInActivity", "Session check error")
             }
         }
     }
 
-    private fun navigateToDashboard(userId: String? = null) {
+    private fun navigateToCustomer(userId: String, email: String) {
         if (isNavigating) return
-
         isNavigating = true
 
-        val intent = Intent(this, DashboardActivity::class.java)
+        Toast.makeText(this, "Welcome back, $email", Toast.LENGTH_SHORT).show()
 
-        // Pass user ID if available
-        if (userId != null) {
-            intent.putExtra("USER_ID", userId)
-            Log.d("LogInActivity", "Passing user ID to DashboardActivity: $userId")
+        val intent = Intent(this, DashboardActivity::class.java).apply {
+            putExtra("USER_ID", userId)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
+        startActivity(intent)
+        finish()
+    }
 
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    private fun navigateToAdmin(userId: String) {
+        if (isNavigating) return
+        isNavigating = true
+
+        Toast.makeText(this, "Admin Access Granted", Toast.LENGTH_SHORT).show()
+
+        val intent = Intent(this, AdminAppointmentsActivity::class.java).apply {
+            putExtra("USER_ID", userId)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
         startActivity(intent)
         finish()
     }
 
     private fun navigateToSignUp() {
         if (isNavigating) return
-
         isNavigating = true
-        val intent = Intent(this, SignUpActivity::class.java)
-        startActivity(intent)
-
-        // Reset flag after delay
-        tvSignUp.postDelayed({ isNavigating = false }, 1000)
+        startActivity(Intent(this, SignUpActivity::class.java))
     }
 
     private fun showLoading(isLoading: Boolean) {
         btnLogin.isEnabled = !isLoading
-        btnLogin.text = if (isLoading) "Logging in..." else "Login"
+        btnLogin.text = if (isLoading) "Checking credentials..." else "Login"
     }
 
     private fun hideKeyboard() {
@@ -232,19 +217,13 @@ class LogInActivity : AppCompatActivity() {
     }
 
     private fun setTextColors() {
-        // Set text colors for better visibility
         val textColor = ContextCompat.getColor(this, android.R.color.black)
-
         etEmail.setTextColor(textColor)
-        etEmail.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-
         etPassword.setTextColor(textColor)
-        etPassword.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
     }
 
     override fun onResume() {
         super.onResume()
-        // Reset navigation flag
         isNavigating = false
     }
 }

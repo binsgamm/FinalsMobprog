@@ -122,6 +122,15 @@ data class Payment(
     val verification_date: String? = null
 )
 
+
+
+data class AdminAppointmentDetails(
+    val appointment: AppointmentResponse,
+    val customerName: String,
+    val services: String,
+    val payment: Payment?
+)
+
 // User data for signup
 data class UserData(
     val firstName: String,
