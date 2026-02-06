@@ -20,7 +20,7 @@ class AppointmentsAdapter(
         val tvAppointmentId: TextView = itemView.findViewById(R.id.tvAppointmentId)
         val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
         val tvDateTime: TextView = itemView.findViewById(R.id.tvDateTime)
-        val tvMachine: TextView = itemView.findViewById(R.id.tvMachine)
+
         val tvServices: TextView = itemView.findViewById(R.id.tvServices)
         val tvDelivery: TextView = itemView.findViewById(R.id.tvDelivery)
         val btnViewDetails: MaterialButton = itemView.findViewById(R.id.btnViewDetails)
@@ -66,8 +66,7 @@ class AppointmentsAdapter(
             appointment.appointment_time
         )
 
-        // Machine
-        holder.tvMachine.text = appointment.machine ?: "Not assigned"
+
 
         // Services
         holder.tvServices.text = if (appointmentWithDetails.services.isNotEmpty()) {

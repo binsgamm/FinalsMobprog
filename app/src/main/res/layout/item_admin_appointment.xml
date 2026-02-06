@@ -95,20 +95,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="4dp">
-            <TextView
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:text="@string/label_machine"
-                android:textColor="#777"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/tvAdminMachineInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Machine #1"
-                android:textColor="#333" />
-        </LinearLayout>
+            android:layout_marginBottom="4dp"/>
 
         <!-- Proof of Payment Section -->
         <TextView

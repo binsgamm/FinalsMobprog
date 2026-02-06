@@ -21,7 +21,7 @@ class AdminAppointmentsAdapter(
         val tvName: TextView = v.findViewById(R.id.tvAdminCustomerName)
         val tvPhone: TextView = v.findViewById(R.id.tvAdminCustomerPhone)
         val tvDate: TextView = v.findViewById(R.id.tvAdminAppointmentDate)
-        val tvMachine: TextView = v.findViewById(R.id.tvAdminMachineInfo)
+
         val tvServices: TextView = v.findViewById(R.id.tvAdminServices)
         val ivPayment: ImageView = v.findViewById(R.id.ivProofOfPayment)
         val btnPending: MaterialButton = v.findViewById(R.id.btnSetPending)
@@ -42,7 +42,6 @@ class AdminAppointmentsAdapter(
         holder.tvServices.text = item.services
         holder.tvStatus.text = item.appointment.status.uppercase()
         holder.tvDate.text = "${item.appointment.appointment_date} | ${item.appointment.appointment_time}"
-        holder.tvMachine.text = "Machine: ${item.appointment.machine ?: "Not Assigned"}"
 
         val proof = item.payment?.proof_image
         if (!proof.isNullOrEmpty()) {

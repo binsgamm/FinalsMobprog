@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.widget.*
@@ -88,11 +89,15 @@ class MainActivity : AppCompatActivity() {
     private var userId: String? = null
     private var customerId: Int? = null
     private var isCustomerDataLoaded = false
-    private val MAX_BOOKINGS_PER_SLOT = 6
+
+    // Logic: 1 appointment means the slot is fully allotted
+    private val MAX_BOOKINGS_PER_SLOT = 1
 
     // Theme Colors for Visuals
     private val themeBlue = Color.parseColor("#2d58a9")
     private val themeWhite = Color.WHITE
+
+    private lateinit var timeButtonsList: List<Pair<MaterialButton, String>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -144,6 +149,11 @@ class MainActivity : AppCompatActivity() {
         btnRemoveProof = findViewById(R.id.btnRemoveProof)
         btnBookAppointment = findViewById(R.id.btnBookAppointment)
 
+        timeButtonsList = listOf(
+            btnTime9am to "09:00:00", btnTime1130am to "11:30:00",
+            btnTime2pm to "14:00:00", btnTime430pm to "16:30:00", btnTime7pm to "19:00:00"
+        )
+
         btnBookAppointment.isEnabled = false
         btnBookAppointment.text = "Loading..."
     }
@@ -151,17 +161,17 @@ class MainActivity : AppCompatActivity() {
     private fun setupListeners() {
         Log.d("MainActivity", "=== SETTING UP LISTENERS ===")
 
-        // Services
         setupServiceButton(btnWashFold, 1)
         setupServiceButton(btnDryCleaning, 2)
         setupServiceButton(btnIroning, 3)
 
-        // Date Picker
         btnSelectDate.setOnClickListener {
+            val today = Calendar.getInstance()
             val datePicker = com.google.android.material.datepicker.MaterialDatePicker.Builder.datePicker()
                 .setTitleText("Select Date")
                 .setCalendarConstraints(com.google.android.material.datepicker.CalendarConstraints.Builder()
                     .setValidator(com.google.android.material.datepicker.DateValidatorPointForward.now()).build())
+                .setTheme(com.google.android.material.R.style.ThemeOverlay_Material3_MaterialCalendar)
                 .build()
 
             datePicker.addOnPositiveButtonClickListener { selection ->
@@ -175,49 +185,24 @@ class MainActivity : AppCompatActivity() {
             datePicker.show(supportFragmentManager, "DATE_PICKER")
         }
 
-        // Time Buttons logic (Preserving your exact original logic)
-        val timeButtons = listOf(
-            btnTime9am to "09:00:00", btnTime1130am to "11:30:00",
-            btnTime2pm to "14:00:00", btnTime430pm to "16:30:00", btnTime7pm to "19:00:00"
-        )
-
-        timeButtons.forEach { (button, time) ->
+        timeButtonsList.forEach { (button, time) ->
             button.isCheckable = true
             button.setOnClickListener {
-                val isToday = selectedDate == SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
-                var isPastTime = false
-                if (isToday) {
-                    val currentTime = Calendar.getInstance()
-                    val parts = time.split(":")
-                    if (parts[0].toInt() < currentTime.get(Calendar.HOUR_OF_DAY) || (parts[0].toInt() == currentTime.get(Calendar.HOUR_OF_DAY) && parts[1].toInt() <= currentTime.get(Calendar.MINUTE))) {
-                        isPastTime = true
-                    }
-                }
-
-                if (isPastTime) {
+                if (selectedDate == null) {
                     button.isChecked = false
-                    Toast.makeText(this, "This time has passed.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Please select a date first", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
-                if (fullyBookedTimes.contains(time)) {
-                    button.isChecked = false
-                    Toast.makeText(this, "Slot fully booked.", Toast.LENGTH_SHORT).show()
-                } else {
-                    timeButtons.forEach {
-                        it.first.isChecked = it.first == button
-                        updateButtonStyle(it.first)
-                    }
-                    selectedTime = time
-                }
+                timeButtonsList.forEach { it.first.isChecked = false; updateButtonStyle(it.first) }
+                button.isChecked = true
+                selectedTime = time
+                updateButtonStyle(button)
             }
         }
 
-        // Detergent
-        toggleGroupDetergent.addOnButtonCheckedListener { group, checkedId, isChecked ->
+        toggleGroupDetergent.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
-                val btn = findViewById<MaterialButton>(checkedId)
-                updateButtonStyle(btn)
                 if (checkedId == R.id.btnDetergentOwn) {
                     layoutBrandSelection.visibility = View.GONE
                     selectedDetergentBrand = null
@@ -228,9 +213,8 @@ class MainActivity : AppCompatActivity() {
                     tvQuantity.text = "1"
                 }
                 updateDetergentTotal()
-            } else {
-                findViewById<MaterialButton>(checkedId)?.let { updateButtonStyle(it) }
             }
+            findViewById<MaterialButton>(checkedId)?.let { updateButtonStyle(it) }
         }
 
         toggleGroupBrand.addOnButtonCheckedListener { _, checkedId, isChecked ->
@@ -242,34 +226,28 @@ class MainActivity : AppCompatActivity() {
                     else -> null
                 }
                 updateDetergentTotal()
-                findViewById<MaterialButton>(checkedId)?.let { updateButtonStyle(it) }
-            } else {
-                findViewById<MaterialButton>(checkedId)?.let { updateButtonStyle(it) }
             }
+            findViewById<MaterialButton>(checkedId)?.let { updateButtonStyle(it) }
         }
 
         btnQuantityPlus.setOnClickListener { if (selectedDetergentQuantity < 10) selectedDetergentQuantity++; tvQuantity.text = selectedDetergentQuantity.toString(); updateDetergentTotal() }
         btnQuantityMinus.setOnClickListener { if (selectedDetergentQuantity > 1) selectedDetergentQuantity--; tvQuantity.text = selectedDetergentQuantity.toString(); updateDetergentTotal() }
 
-        // Delivery/Payment
         toggleGroupDelivery.addOnButtonCheckedListener { _, id, isChecked ->
-            if (isChecked) {
-                selectedDeliveryMethod = if (id == R.id.btnMethodDropOff) "Drop Off" else "Pickup"
-                findViewById<MaterialButton>(id)?.let { updateButtonStyle(it) }
-            } else findViewById<MaterialButton>(id)?.let { updateButtonStyle(it) }
+            if (isChecked) selectedDeliveryMethod = if (id == R.id.btnMethodDropOff) "Drop Off" else "Pickup"
+            findViewById<MaterialButton>(id)?.let { updateButtonStyle(it) }
         }
 
         toggleGroupPayment.addOnButtonCheckedListener { _, id, isChecked ->
             if (isChecked) {
                 selectedPaymentMethod = if (id == R.id.btnPaymentCash) "Cash" else "E-Wallet"
                 layoutPaymentProof.visibility = if (selectedPaymentMethod == "E-Wallet") View.VISIBLE else View.GONE
-                findViewById<MaterialButton>(id)?.let { updateButtonStyle(it) }
-            } else findViewById<MaterialButton>(id)?.let { updateButtonStyle(it) }
+            }
+            findViewById<MaterialButton>(id)?.let { updateButtonStyle(it) }
         }
 
         btnUploadProof.setOnClickListener { startActivityForResult(Intent(Intent.ACTION_PICK).apply { type = "image/*" }, PICK_IMAGE_REQUEST) }
         btnRemoveProof.setOnClickListener { paymentProofBase64 = null; cardImagePreview.visibility = View.GONE }
-
         btnBookAppointment.setOnClickListener { if (validateInputs()) bookAppointment() }
     }
 
@@ -290,6 +268,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateButtonStyle(button: MaterialButton) {
+        if (!button.isEnabled) {
+            button.alpha = 0.3f
+            button.backgroundTintList = ColorStateList.valueOf(Color.LTGRAY)
+            button.setTextColor(Color.GRAY)
+            button.strokeWidth = 0
+            return
+        }
+        button.alpha = 1.0f
         if (button.isChecked) {
             button.backgroundTintList = ColorStateList.valueOf(themeBlue)
             button.setTextColor(themeWhite)
@@ -297,7 +283,8 @@ class MainActivity : AppCompatActivity() {
         } else {
             button.backgroundTintList = ColorStateList.valueOf(themeWhite)
             button.setTextColor(Color.BLACK)
-            button.strokeColor = ColorStateList.valueOf(Color.LTGRAY)
+            button.strokeColor = ColorStateList.valueOf(themeBlue)
+            button.strokeWidth = 2
         }
     }
 
@@ -330,41 +317,51 @@ class MainActivity : AppCompatActivity() {
         tvDetergentCost.text = "₱${detergentCost.toInt()}"
         layoutDetergentCost.visibility = if (detergentCost > 0) View.VISIBLE else View.GONE
         tvGrandTotal.text = "₱${grandTotal.toInt()}"
-        Log.d("MainActivity", "Summary Updated: Total ₱$grandTotal")
     }
 
     private fun checkTimeSlotAvailability() {
         if (selectedDate == null) return
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = SupabaseManager.client.from("appointments").select { filter { eq("appointment_date", selectedDate!!) } }
-                val appointments = Json { ignoreUnknownKeys = true }.decodeFromString<List<AppointmentResponse>>(response.data)
-                fullyBookedTimes.clear()
-                appointments.groupBy { it.appointment_time }.forEach { (time, list) ->
-                    if (list.count { it.status.lowercase() != "cancelled" } >= MAX_BOOKINGS_PER_SLOT) fullyBookedTimes.add(time)
+                // Fetch all non-cancelled appointments for this date
+                val response = SupabaseManager.client.from("appointments").select {
+                    filter { eq("appointment_date", selectedDate!!) }
                 }
+                val appointments = Json { ignoreUnknownKeys = true }.decodeFromString<List<AppointmentResponse>>(response.data)
+
+                fullyBookedTimes.clear()
+
+                // Group by time. If slot has >= 1 active record, block it.
+                appointments.groupBy { it.appointment_time }.forEach { (time, list) ->
+                    val activeCount = list.count { it.status.lowercase() != "cancelled" }
+                    if (activeCount >= MAX_BOOKINGS_PER_SLOT) {
+                        fullyBookedTimes.add(time)
+                    }
+                }
+
                 withContext(Dispatchers.Main) { updateTimeButtons() }
-            } catch (e: Exception) { Log.e("MainActivity", "Error checking slots") }
+            } catch (e: Exception) { Log.e("MainActivity", "Availability check error") }
         }
     }
 
     private fun updateTimeButtons() {
-        val timeButtons = listOf(btnTime9am to "09:00:00", btnTime1130am to "11:30:00", btnTime2pm to "14:00:00", btnTime430pm to "16:30:00", btnTime7pm to "19:00:00")
-        val isToday = selectedDate == SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
         val now = Calendar.getInstance()
+        val isToday = selectedDate == SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(now.time)
 
-        timeButtons.forEach { (button, time) ->
+        timeButtonsList.forEach { (button, time) ->
             var isPast = false
             if (isToday) {
-                val slotCal = Calendar.getInstance().apply {
-                    val p = time.split(":")
-                    set(Calendar.HOUR_OF_DAY, p[0].toInt()); set(Calendar.MINUTE, p[1].toInt())
-                }
+                val p = time.split(":")
+                val slotCal = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, p[0].toInt()); set(Calendar.MINUTE, p[1].toInt()) }
                 isPast = slotCal.before(now)
             }
+
+            // Slot is disabled if it's already in the past OR if it exists in DB (Allotted)
             val isDisabled = isPast || fullyBookedTimes.contains(time)
+
             button.isEnabled = !isDisabled
-            button.alpha = if (isDisabled) 0.4f else 1.0f
+            if (isDisabled) button.isChecked = false
+
             updateButtonStyle(button)
         }
     }
@@ -372,7 +369,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadUserData() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                delay(2000)
+                delay(1500)
                 userId = intent.getStringExtra("USER_ID") ?: SupabaseManager.client.auth.currentUserOrNull()?.id
                 if (userId != null) {
                     val response = SupabaseManager.client.from("customers").select { filter { eq("user_id", userId!!) } }
@@ -393,11 +390,11 @@ class MainActivity : AppCompatActivity() {
     private fun validateInputs(): Boolean {
         if (!isCustomerDataLoaded || customerId == null) return false
         if (selectedServices.isEmpty() || selectedDate == null || selectedTime == null || selectedPaymentMethod == null) {
-            Toast.makeText(this, "Please complete all selections", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Complete all fields", Toast.LENGTH_SHORT).show()
             return false
         }
         if (selectedPaymentMethod == "E-Wallet" && paymentProofBase64 == null) {
-            Toast.makeText(this, "Proof image required for E-Wallet", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Proof required for E-Wallet", Toast.LENGTH_SHORT).show()
             return false
         }
         return true
@@ -410,22 +407,17 @@ class MainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val detergentOption = if (selectedDetergentBrand != null) "store" else "own"
-                val detergentCharge = if (detergentOption == "store") selectedDetergentQuantity * detergentPricePerUnit else 0.0
+                val dCharge = if (detergentOption == "store") selectedDetergentQuantity * detergentPricePerUnit else 0.0
 
-                // 1. Create Appointment
-                val appData = AppointmentInsert(customerId!!, selectedDate!!, selectedTime!!, detergent_option = detergentOption, detergent_charge = detergentCharge, delivery_method = selectedDeliveryMethod)
-                val appRes = SupabaseManager.client.from("appointments").insert(appData) { select() }
-                val appId = Json { ignoreUnknownKeys = true }.decodeFromString<List<AppointmentResponse>>(appRes.data)[0].appointment_id
+                val appData = AppointmentInsert(customerId!!, selectedDate!!, selectedTime!!, detergent_option = detergentOption, detergent_charge = dCharge, delivery_method = selectedDeliveryMethod)
+                val res = SupabaseManager.client.from("appointments").insert(appData) { select() }
+                val appId = Json { ignoreUnknownKeys = true }.decodeFromString<List<AppointmentResponse>>(res.data)[0].appointment_id
 
-                // 2. Junction Services
                 selectedServices.forEach { sId ->
-                    val sInsert = AppointmentServiceInsert(appId, sId, servicePrices[sId] ?: 0.0)
-                    SupabaseManager.client.from("appointment_services").insert(sInsert)
+                    SupabaseManager.client.from("appointment_services").insert(AppointmentServiceInsert(appId, sId, servicePrices[sId] ?: 0.0))
                 }
 
-                // 3. Payment
-                val payData = PaymentInsert(appId, 0.0, selectedPaymentMethod!!, paymentProofBase64)
-                SupabaseManager.client.from("payments").insert(payData)
+                SupabaseManager.client.from("payments").insert(PaymentInsert(appId, 0.0, selectedPaymentMethod!!, paymentProofBase64))
 
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@MainActivity, "Successfully Booked!", Toast.LENGTH_LONG).show()
@@ -433,10 +425,9 @@ class MainActivity : AppCompatActivity() {
                     finish()
                 }
             } catch (e: Exception) {
-                Log.e("MainActivity", "Error: ${e.message}")
                 withContext(Dispatchers.Main) {
                     btnBookAppointment.isEnabled = true
-                    Toast.makeText(this@MainActivity, "Booking error. Remove DB triggers.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@MainActivity, "Booking error", Toast.LENGTH_LONG).show()
                 }
             }
         }

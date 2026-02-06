@@ -27,7 +27,6 @@ class AdminAppointmentsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin_appointments)
 
-        // Initialize UI
         rvAdmin = findViewById(R.id.rvAdminAppointments)
         rvAdmin.layoutManager = LinearLayoutManager(this)
 
@@ -38,7 +37,6 @@ class AdminAppointmentsActivity : AppCompatActivity() {
         )
         rvAdmin.adapter = adapter
 
-        // --- SIGN OUT BUTTON LOGIC ---
         findViewById<MaterialButton>(R.id.btnAdminBack).setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
@@ -60,12 +58,35 @@ class AdminAppointmentsActivity : AppCompatActivity() {
     private fun fetchAllAppointments() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                // Ensure auth is ready to prevent RLS empty results
+                SupabaseManager.waitForSession()
+
                 val json = Json { ignoreUnknownKeys = true }
 
-                // 1. Fetch data from all tables
+                // 1. Fetch appointments first
                 val appRes = SupabaseManager.client.from("appointments").select()
                 val appointments = json.decodeFromString<List<AppointmentResponse>>(appRes.data)
 
+                if (appointments.isEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        adminList.clear()
+                        adapter.notifyDataSetChanged()
+                    }
+                    return@launch
+                }
+
+                // 2. Optimization: Get IDs to filter payment records
+                val appointmentIds = appointments.map { it.appointment_id }
+
+                // 3. CORRECTED: Fetch specific payments using isIn
+                val payRes = SupabaseManager.client.from("payments").select {
+                    filter {
+                        isIn("appointment_id", appointmentIds)
+                    }
+                }
+                val paymentsMap = json.decodeFromString<List<Payment>>(payRes.data).associateBy { it.appointment_id }
+
+                // 4. Fetch other tables
                 val custRes = SupabaseManager.client.from("customers").select()
                 val customersMap = json.decodeFromString<List<Customer>>(custRes.data).associateBy { it.customer_id }
 
@@ -75,10 +96,7 @@ class AdminAppointmentsActivity : AppCompatActivity() {
                 val juncRes = SupabaseManager.client.from("appointment_services").select()
                 val junctionMap = json.decodeFromString<List<AppointmentService>>(juncRes.data).groupBy { it.appointment_id }
 
-                val payRes = SupabaseManager.client.from("payments").select()
-                val paymentsMap = json.decodeFromString<List<Payment>>(payRes.data).associateBy { it.appointment_id }
-
-                // 2. Map everything together
+                // 5. Map everything together
                 val combined = appointments.map { app ->
                     val customer = customersMap[app.customer_id]
                     val cName = "${customer?.f_name ?: "Unknown"} ${customer?.l_name ?: ""}"
@@ -98,6 +116,9 @@ class AdminAppointmentsActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 Log.e("Admin", "Fetch error: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@AdminAppointmentsActivity, "Load failed or timed out", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -109,7 +130,7 @@ class AdminAppointmentsActivity : AppCompatActivity() {
                     filter { eq("appointment_id", id) }
                 }
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@AdminAppointmentsActivity, "Status updated", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AdminAppointmentsActivity, "Status updated to $status", Toast.LENGTH_SHORT).show()
                     fetchAllAppointments()
                 }
             } catch (e: Exception) { Log.e("Admin", "Update error") }
