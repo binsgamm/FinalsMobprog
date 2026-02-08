@@ -84,7 +84,26 @@
                 android:text="Jan 25, 2026 - 09:00 AM"
                 android:textColor="#333" />
         </LinearLayout>
-
+        <!-- PAYMENT METHOD (NEW) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
+            <TextView
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="Payment Type:"
+                android:textColor="#777"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tvAdminPaymentMethod"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="E-Wallet"
+                android:textColor="#2d58a9"
+                android:textStyle="bold" />
+        </LinearLayout>
         <!-- SERVICES (MOVED HERE) -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
             <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Services:" android:textColor="#777" android:textStyle="bold" />

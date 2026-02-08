@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
     private var isCustomerDataLoaded = false
 
     // Logic: 1 appointment means the slot is fully allotted
-    private val MAX_BOOKINGS_PER_SLOT = 1
+    private val MAX_BOOKINGS_PER_SLOT = 6
 
     // Theme Colors for Visuals
     private val themeBlue = Color.parseColor("#2d58a9")

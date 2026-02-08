@@ -700,7 +700,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Please upload screenshot of payment (GCash, Maya, etc.)"
+                            android:text="Please upload screenshot of payment. 09947728685 P*****D****"
                             android:textColor="#666"
                             android:textSize="12sp"
                             android:layout_marginBottom="8dp" />
